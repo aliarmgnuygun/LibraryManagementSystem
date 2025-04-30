@@ -31,6 +31,10 @@ public class Book {
     @Column(name = "isbn", length = 50, nullable = false, unique = true)
     private String isbn;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
     @Column(name = "description", length = 250, nullable = false)
     private String description;
 
