@@ -1,7 +1,10 @@
 package com.getir.aau.librarymanagementsystem.model.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
@@ -20,6 +23,10 @@ public class Book {
 
     @Column(name = "title", length = 100, nullable = false)
     private String title;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "author_id")
+    private Author author;
 
     @Column(name = "isbn", length = 50, nullable = false, unique = true)
     private String isbn;

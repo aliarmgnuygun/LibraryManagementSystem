@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "authors")
 @Getter
@@ -22,4 +25,10 @@ public class Author {
     @Column(name = "description", length = 250, nullable = false)
     private String description;
 
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY, cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE,
+            CascadeType.REMOVE
+    })
+    private Set<Book> books = new HashSet<>();
 }
