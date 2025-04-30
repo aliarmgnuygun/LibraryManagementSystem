@@ -39,7 +39,6 @@ public class Book {
     private String description;
 
     @Column(name = "publication_date", nullable = false)
-    @DateTimeFormat(pattern="dd/MM/yyyy")
     private LocalDate publicationDate;
 
     @Column(nullable = false)
