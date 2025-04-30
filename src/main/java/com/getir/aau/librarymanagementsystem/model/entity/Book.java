@@ -34,7 +34,6 @@ public class Book {
     @Column(nullable = false)
     private String genre;
 
-    @Getter
     @Column(nullable = false)
     private int numberOfCopies;
 
