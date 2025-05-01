@@ -1,13 +1,14 @@
 package com.getir.aau.librarymanagementsystem.service;
 
+import com.getir.aau.librarymanagementsystem.model.dto.BookRequestDto;
 import com.getir.aau.librarymanagementsystem.model.dto.BookResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface BookService {
 
-    // BookResponseDto createBook(BookRequestDto bookRequestDto);
-    // BookResponseDto updateBook(Long id, BookRequestDto bookRequestDto);
+    BookResponseDto createBook(BookRequestDto bookRequestDto);
+    BookResponseDto updateBook(Long id, BookRequestDto bookRequestDto);
 
     void deleteBook(Long id);
 
