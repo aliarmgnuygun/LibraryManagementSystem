@@ -15,6 +15,7 @@ public interface  BookMapper {
     BookMapper INSTANCE = Mappers.getMapper(BookMapper.class);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "description", source = "dto.description")
     @Mapping(target = "available", expression = "java(dto.numberOfCopies() > 0)")
     Book toEntity(BookRequestDto dto, Author author, Category category);
 
