@@ -1,5 +1,6 @@
 package com.getir.aau.librarymanagementsystem.controller;
 
+import com.getir.aau.librarymanagementsystem.model.dto.BookPageResponseDto;
 import com.getir.aau.librarymanagementsystem.model.dto.BookRequestDto;
 import com.getir.aau.librarymanagementsystem.model.dto.BookResponseDto;
 import com.getir.aau.librarymanagementsystem.service.BookService;
@@ -67,44 +68,44 @@ public class BookController {
 
     @Operation(summary = "Search books by keyword")
     @GetMapping("/search")
-    public ResponseEntity<Page<BookResponseDto>> searchBooks(@RequestParam(required = false) String keyword,
-                                                             Pageable pageable) {
+    public ResponseEntity<BookPageResponseDto> searchBooks(@RequestParam(required = false) String keyword,
+                                                           Pageable pageable) {
         return ResponseEntity.ok(bookService.searchBooks(keyword != null ? keyword : "", pageable));
     }
 
     @Operation(summary = "Get books by category ID")
     @GetMapping("/category/{categoryId}")
-    public ResponseEntity<Page<BookResponseDto>> getBooksByCategory(@PathVariable Long categoryId, Pageable pageable) {
+    public ResponseEntity<BookPageResponseDto> getBooksByCategory(@PathVariable Long categoryId, Pageable pageable) {
         return ResponseEntity.ok(bookService.getBooksByCategoryId(categoryId, pageable));
     }
 
     @Operation(summary = "Get books by author ID")
     @GetMapping("/author/{authorId}")
-    public ResponseEntity<Page<BookResponseDto>> getBooksByAuthor(@PathVariable Long authorId, Pageable pageable) {
+    public ResponseEntity<BookPageResponseDto> getBooksByAuthor(@PathVariable Long authorId, Pageable pageable) {
         return ResponseEntity.ok(bookService.getBooksByAuthorId(authorId, pageable));
     }
 
     @Operation(summary = "Get available books")
     @GetMapping("/available")
-    public ResponseEntity<Page<BookResponseDto>> getAvailableBooks(Pageable pageable) {
+    public ResponseEntity<BookPageResponseDto> getAvailableBooks(Pageable pageable) {
         return ResponseEntity.ok(bookService.getAvailableBooks(pageable));
     }
 
     @Operation(summary = "Get books by genre")
     @GetMapping("/genre")
-    public ResponseEntity<Page<BookResponseDto>> getBooksByGenre(@RequestParam String genre, Pageable pageable) {
+    public ResponseEntity<BookPageResponseDto> getBooksByGenre(@RequestParam String genre, Pageable pageable) {
         return ResponseEntity.ok(bookService.getBooksByGenre(genre, pageable));
     }
 
     @Operation(summary = "Get books by author name")
     @GetMapping("/author/name")
-    public ResponseEntity<Page<BookResponseDto>> getBooksByAuthorName(@RequestParam String name, Pageable pageable) {
+    public ResponseEntity<BookPageResponseDto> getBooksByAuthorName(@RequestParam String name, Pageable pageable) {
         return ResponseEntity.ok(bookService.getBooksByAuthorName(name, pageable));
     }
 
     @Operation(summary = "Get books by title")
     @GetMapping("/title")
-    public ResponseEntity<Page<BookResponseDto>> getBooksByTitle(@RequestParam String title, Pageable pageable) {
+    public ResponseEntity<BookPageResponseDto> getBooksByTitle(@RequestParam String title, Pageable pageable) {
         return ResponseEntity.ok(bookService.getBooksByTitle(title, pageable));
     }
 

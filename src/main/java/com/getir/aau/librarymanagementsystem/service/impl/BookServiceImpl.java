@@ -1,5 +1,6 @@
 package com.getir.aau.librarymanagementsystem.service.impl;
 
+import com.getir.aau.librarymanagementsystem.model.dto.BookPageResponseDto;
 import com.getir.aau.librarymanagementsystem.model.dto.BookRequestDto;
 import com.getir.aau.librarymanagementsystem.model.dto.BookResponseDto;
 import com.getir.aau.librarymanagementsystem.model.entity.Author;
@@ -65,38 +66,52 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Page<BookResponseDto> getBooksByTitle(String title, Pageable pageable) {
-        return bookRepository.findByTitleContainingIgnoreCase(title, pageable).map(bookMapper::toDto);
+    public BookPageResponseDto getBooksByTitle(String title, Pageable pageable) {
+        Page<BookResponseDto> page = bookRepository.findByTitleContainingIgnoreCase(title, pageable)
+                .map(bookMapper::toDto);
+        return new BookPageResponseDto(page.getContent(), page.getTotalPages(), page.getTotalElements());
     }
 
     @Override
-    public Page<BookResponseDto> getBooksByAuthorId(Long authorId, Pageable pageable) {
-        return bookRepository.findByAuthorId(authorId, pageable).map(bookMapper::toDto);
+    public BookPageResponseDto getBooksByAuthorId(Long authorId, Pageable pageable) {
+        Page<BookResponseDto> page = bookRepository.findByAuthorId(authorId, pageable)
+                .map(bookMapper::toDto);
+        return new BookPageResponseDto(page.getContent(), page.getTotalPages(), page.getTotalElements());
     }
 
     @Override
-    public Page<BookResponseDto> getBooksByAuthorName(String authorName, Pageable pageable) {
-        return bookRepository.findByAuthorNameContainingIgnoreCase(authorName, pageable).map(bookMapper::toDto);
+    public BookPageResponseDto getBooksByAuthorName(String authorName, Pageable pageable) {
+        Page<BookResponseDto> page = bookRepository.findByAuthorNameContainingIgnoreCase(authorName, pageable)
+                .map(bookMapper::toDto);
+        return new BookPageResponseDto(page.getContent(), page.getTotalPages(), page.getTotalElements());
     }
 
     @Override
-    public Page<BookResponseDto> getBooksByCategoryId(Long categoryId, Pageable pageable) {
-        return bookRepository.findByCategoryId(categoryId, pageable).map(bookMapper::toDto);
+    public BookPageResponseDto getBooksByCategoryId(Long categoryId, Pageable pageable) {
+        Page<BookResponseDto> page = bookRepository.findByCategoryId(categoryId, pageable)
+                .map(bookMapper::toDto);
+        return new BookPageResponseDto(page.getContent(), page.getTotalPages(), page.getTotalElements());
     }
 
     @Override
-    public Page<BookResponseDto> getBooksByGenre(String genre, Pageable pageable) {
-        return bookRepository.findByGenreContainingIgnoreCase(genre, pageable).map(bookMapper::toDto);
+    public BookPageResponseDto getBooksByGenre(String genre, Pageable pageable) {
+        Page<BookResponseDto> page = bookRepository.findByGenreContainingIgnoreCase(genre, pageable)
+                .map(bookMapper::toDto);
+        return new BookPageResponseDto(page.getContent(), page.getTotalPages(), page.getTotalElements());
     }
 
     @Override
-    public Page<BookResponseDto> getAvailableBooks(Pageable pageable) {
-        return bookRepository.findAvailableBooks(pageable).map(bookMapper::toDto);
+    public BookPageResponseDto getAvailableBooks(Pageable pageable) {
+        Page<BookResponseDto> page = bookRepository.findAvailableBooks(pageable)
+                .map(bookMapper::toDto);
+        return new BookPageResponseDto(page.getContent(), page.getTotalPages(), page.getTotalElements());
     }
 
     @Override
-    public Page<BookResponseDto> searchBooks(String searchTerm, Pageable pageable) {
-        return bookRepository.searchBooks(searchTerm, pageable).map(bookMapper::toDto);
+    public BookPageResponseDto searchBooks(String searchTerm, Pageable pageable) {
+        Page<BookResponseDto> page = bookRepository.searchBooks(searchTerm, pageable)
+                .map(bookMapper::toDto);
+        return new BookPageResponseDto(page.getContent(), page.getTotalPages(), page.getTotalElements());
     }
 
     @Override
