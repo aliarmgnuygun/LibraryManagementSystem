@@ -22,10 +22,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "firstName", length = 100,nullable = false)
+    @Column(name = "first_name", length = 100,nullable = false)
     private String firstName;
 
-    @Column(name = "lastName",length = 100,nullable = false)
+    @Column(name = "last_name",length = 100,nullable = false)
     private String lastName;
 
     @Column(name = "username", length = 50, nullable = false)
@@ -37,7 +37,10 @@ public class User {
     @Column(name = "password", length = 100, nullable = false)
     private String password;
 
-    @Column(name = "phoneNumber", length = 15, nullable = false)
+    @Column(name = "phone_number", length = 15, nullable = false)
     private String phoneNumber;
 
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 }
