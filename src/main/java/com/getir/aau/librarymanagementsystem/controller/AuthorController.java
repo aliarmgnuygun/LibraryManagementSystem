@@ -30,32 +30,32 @@ public class AuthorController {
             @ApiResponse(responseCode = "400", description = "Invalid input")
     })
     @PostMapping
-    public ResponseEntity<AuthorResponseDto> createAuthor(@Valid @RequestBody AuthorRequestDto dto) {
+    public ResponseEntity<AuthorResponseDto> create(@Valid @RequestBody AuthorRequestDto dto) {
         return new ResponseEntity<>(authorService.createAuthor(dto), HttpStatus.CREATED);
     }
 
     @Operation(summary = "Update an existing author")
     @PutMapping("/{id}")
-    public ResponseEntity<AuthorResponseDto> updateAuthor(@PathVariable Long id,
+    public ResponseEntity<AuthorResponseDto> update(@PathVariable Long id,
                                                           @Valid @RequestBody AuthorRequestDto dto) {
         return ResponseEntity.ok(authorService.updateAuthor(id, dto));
     }
 
     @Operation(summary = "Get author by ID")
     @GetMapping("/{id}")
-    public ResponseEntity<AuthorResponseDto> getAuthorById(@PathVariable Long id) {
+    public ResponseEntity<AuthorResponseDto> getById(@PathVariable Long id) {
         return ResponseEntity.ok(authorService.getAuthorById(id));
     }
 
     @Operation(summary = "Get all authors")
     @GetMapping
-    public ResponseEntity<List<AuthorResponseDto>> getAllAuthors() {
+    public ResponseEntity<List<AuthorResponseDto>> getAll() {
         return ResponseEntity.ok(authorService.getAllAuthors());
     }
 
     @Operation(summary = "Delete an author")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAuthor(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         authorService.deleteAuthor(id);
         return ResponseEntity.noContent().build();
     }
