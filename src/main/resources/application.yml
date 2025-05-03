@@ -1,0 +1,29 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: LibraryManagementSystem
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/library_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.PostgresSQLDialect
+
+application:
+  security:
+    jwt:
+      secret-key: 457fc23d2383625aedf190b204fde5450b6ae5309e01b23f852b6a6e78b9017d
+      expiration: 86400000 # 1 day
+      refresh-token:
+        expiration: 604800000 # 7 days
