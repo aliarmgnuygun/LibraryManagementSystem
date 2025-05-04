@@ -10,7 +10,7 @@ import java.util.List;
 
 
 @Configuration
-public class SpringDocConfig {
+public class OpenApiConfig {
 
     @Bean
     public OpenApiCustomizer customizePageable() {
