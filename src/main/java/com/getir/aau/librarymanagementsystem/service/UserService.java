@@ -1,15 +1,26 @@
 package com.getir.aau.librarymanagementsystem.service;
 
+import com.getir.aau.librarymanagementsystem.model.dto.UserResponseDto;
+import com.getir.aau.librarymanagementsystem.model.dto.UserUpdateRequestDto;
 import com.getir.aau.librarymanagementsystem.model.entity.User;
+import com.getir.aau.librarymanagementsystem.security.auth.dto.RegisterRequestDto;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
-    boolean existsByEmail(String email);
+
+    UserResponseDto create(RegisterRequestDto dto);
+
+    UserResponseDto getByEmail(String userEmail);
+
+    UserResponseDto getById(Long id);
+
+    List<UserResponseDto> getAll();
+
+    UserResponseDto updateUser(Long id, UserUpdateRequestDto dto);
+
+    void delete(Long id);
+
     Optional<User> findByEmail(String email);
-    Optional<User> findById(Long id);
-    void save(User user);
-    List<User> findAll();
-    void deleteById(Long id);
 }

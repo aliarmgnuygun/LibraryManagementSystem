@@ -10,7 +10,7 @@ import com.getir.aau.librarymanagementsystem.security.auth.dto.AuthResponseDto;
 import com.getir.aau.librarymanagementsystem.security.auth.dto.RegisterRequestDto;
 import com.getir.aau.librarymanagementsystem.security.jwt.JwtService;
 import com.getir.aau.librarymanagementsystem.security.token.TokenService;
-import com.getir.aau.librarymanagementsystem.security.token.TokenServiceImpl;
+import com.getir.aau.librarymanagementsystem.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class AuthServiceImpl implements AuthService {
 
+    private final UserService userService;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
@@ -43,16 +44,7 @@ public class AuthServiceImpl implements AuthService {
         Role userRole = roleRepository.findByName(ERole.ROLE_USER)
                 .orElseThrow(() -> new RuntimeException("Default USER role not found"));
 
-        var user = User.builder()
-                .firstName(request.firstName())
-                .lastName(request.lastName())
-                .email(request.email())
-                .password(passwordEncoder.encode(request.password()))
-                .phoneNumber(request.phoneNumber())
-                .role(userRole)
-                .build();
-
-        userRepository.save(user);
+        User user = userService.createUser(request, userRole);
 
         var accessToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
