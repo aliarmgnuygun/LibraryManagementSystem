@@ -52,9 +52,8 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/error").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/auth/register").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
                         // Book Management
                         .requestMatchers(HttpMethod.GET, "/api/books/**").hasAnyRole("USER", "LIBRARIAN")
