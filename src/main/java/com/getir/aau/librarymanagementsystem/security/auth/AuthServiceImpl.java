@@ -9,6 +9,7 @@ import com.getir.aau.librarymanagementsystem.security.auth.dto.AuthRequestDto;
 import com.getir.aau.librarymanagementsystem.security.auth.dto.AuthResponseDto;
 import com.getir.aau.librarymanagementsystem.security.auth.dto.RegisterRequestDto;
 import com.getir.aau.librarymanagementsystem.security.jwt.JwtService;
+import com.getir.aau.librarymanagementsystem.security.token.TokenService;
 import com.getir.aau.librarymanagementsystem.security.token.TokenServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,11 +26,13 @@ import org.springframework.stereotype.Service;
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
-    private final TokenServiceImpl tokenService;
-    private final AuthenticationManager authenticationManager;
     private final RoleRepository roleRepository;
+
+    private final JwtService jwtService;
+    private final TokenService tokenService;
+    private final AuthenticationManager authenticationManager;
+
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public AuthResponseDto register(RegisterRequestDto request) {
