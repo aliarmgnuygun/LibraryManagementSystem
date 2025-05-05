@@ -12,6 +12,7 @@ public interface UserMapper {
 
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
+    @Mapping(target = "role", expression = "java(user.getRole().getName().name())")
     UserResponseDto toDto(User user);
 
     @Mapping(target = "id", ignore = true)
@@ -20,5 +21,6 @@ public interface UserMapper {
     User fromRegisterRequest(RegisterRequestDto dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "role", ignore = true)
     void updateUserFromDto(UserUpdateRequestDto dto, @MappingTarget User user);
 }
