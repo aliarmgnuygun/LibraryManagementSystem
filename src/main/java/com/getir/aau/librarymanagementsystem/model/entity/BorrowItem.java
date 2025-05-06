@@ -44,6 +44,7 @@ public class BorrowItem {
 
     public void markAsReturned() {
         this.returnDate = LocalDate.now();
+        this.book.returnBook();
         this.returned = true;
     }
 }

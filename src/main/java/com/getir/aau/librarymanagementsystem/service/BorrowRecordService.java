@@ -17,7 +17,7 @@ public interface BorrowRecordService {
     Page<BorrowRecordResponseDto> getAll(Pageable pageable);
     Page<BorrowRecordResponseDto> filter(String email, LocalDate startDate, LocalDate endDate, Pageable pageable);
 
-    boolean checkBorrowEligibility(Long userId);
+    void checkBorrowEligibility(Long userId);
     boolean isBookAvailableForBorrowing(Long bookId);
     List<BorrowRecordResponseDto> getActiveRecordsByUser(Long userId);
 }

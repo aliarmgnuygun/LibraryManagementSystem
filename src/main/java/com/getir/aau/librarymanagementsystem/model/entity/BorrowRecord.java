@@ -30,6 +30,7 @@ public class BorrowRecord {
     private LocalDate borrowDate;
 
     @OneToMany(mappedBy = "borrowRecord", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<BorrowItem> items = new ArrayList<>();
 
     public void addItem(BorrowItem item) {

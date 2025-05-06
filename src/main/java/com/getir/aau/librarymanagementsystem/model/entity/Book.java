@@ -62,6 +62,8 @@ public class Book {
 
     public void returnBook() {
         numberOfCopies++;
-        available = true;
+        if (numberOfCopies > 0) {
+            available = true;
+        }
     }
 }
