@@ -9,9 +9,10 @@ public record BorrowItemResponseDto(
         Long id,
         Long bookId,
         String bookTitle,
+        Long userId,
+        String userEmail,
         LocalDate borrowDate,
         LocalDate dueDate,
         LocalDate returnDate,
         boolean returned
 ) {}
-
