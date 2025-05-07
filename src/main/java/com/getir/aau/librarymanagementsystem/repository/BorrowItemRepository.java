@@ -32,4 +32,11 @@ public interface BorrowItemRepository extends JpaRepository<BorrowItem, Long> {
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
             Pageable pageable);
+
+    @Query("""
+    SELECT COUNT(b) FROM BorrowItem b
+    WHERE b.user.id = :userId AND b.returned = false
+""")
+    int countActiveByUserId(@Param("userId") Long userId);
+
 }

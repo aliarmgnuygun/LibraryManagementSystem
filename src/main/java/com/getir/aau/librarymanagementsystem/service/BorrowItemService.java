@@ -17,4 +17,5 @@ public interface BorrowItemService {
 
     List<BorrowItemResponseDto> getActiveItemsByUser(Long userId);
     boolean existsOverdueItemsByUserId(Long userId);
+    int countActiveItemsByUser(Long userId);
 }
