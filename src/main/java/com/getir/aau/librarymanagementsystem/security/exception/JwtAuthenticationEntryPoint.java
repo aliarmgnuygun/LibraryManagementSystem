@@ -1,4 +1,4 @@
-package com.getir.aau.librarymanagementsystem.security.jwt;
+package com.getir.aau.librarymanagementsystem.security.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
