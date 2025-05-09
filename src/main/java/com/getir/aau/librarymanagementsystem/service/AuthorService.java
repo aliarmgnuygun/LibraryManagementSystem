@@ -7,10 +7,9 @@ import java.util.List;
 
 public interface AuthorService {
 
-    AuthorResponseDto createAuthor(AuthorRequestDto dto);
-    AuthorResponseDto updateAuthor(Long id, AuthorRequestDto dto);
-    AuthorResponseDto getAuthorById(Long id);
-    List<AuthorResponseDto> getAllAuthors();
-    void deleteAuthor(Long id);
-
+    AuthorResponseDto create(AuthorRequestDto dto);
+    AuthorResponseDto update(Long id, AuthorRequestDto dto);
+    AuthorResponseDto getById(Long id);
+    List<AuthorResponseDto> getAll();
+    void delete(Long id);
 }
