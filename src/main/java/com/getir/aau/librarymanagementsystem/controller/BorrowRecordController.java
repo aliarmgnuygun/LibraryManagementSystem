@@ -1,7 +1,7 @@
 package com.getir.aau.librarymanagementsystem.controller;
 
-import com.getir.aau.librarymanagementsystem.model.dto.BorrowRecordRequestDto;
-import com.getir.aau.librarymanagementsystem.model.dto.BorrowRecordResponseDto;
+import com.getir.aau.librarymanagementsystem.model.dto.request.BorrowRecordRequestDto;
+import com.getir.aau.librarymanagementsystem.model.dto.response.BorrowRecordResponseDto;
 import com.getir.aau.librarymanagementsystem.service.BorrowRecordService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

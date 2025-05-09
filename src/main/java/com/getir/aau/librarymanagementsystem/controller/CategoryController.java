@@ -1,7 +1,7 @@
 package com.getir.aau.librarymanagementsystem.controller;
 
-import com.getir.aau.librarymanagementsystem.model.dto.CategoryRequestDto;
-import com.getir.aau.librarymanagementsystem.model.dto.CategoryResponseDto;
+import com.getir.aau.librarymanagementsystem.model.dto.request.CategoryRequestDto;
+import com.getir.aau.librarymanagementsystem.model.dto.response.CategoryResponseDto;
 import com.getir.aau.librarymanagementsystem.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

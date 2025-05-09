@@ -1,7 +1,7 @@
 package com.getir.aau.librarymanagementsystem.controller;
 
-import com.getir.aau.librarymanagementsystem.model.dto.AuthorRequestDto;
-import com.getir.aau.librarymanagementsystem.model.dto.AuthorResponseDto;
+import com.getir.aau.librarymanagementsystem.model.dto.request.AuthorRequestDto;
+import com.getir.aau.librarymanagementsystem.model.dto.response.AuthorResponseDto;
 import com.getir.aau.librarymanagementsystem.service.AuthorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

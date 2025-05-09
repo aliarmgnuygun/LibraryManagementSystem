@@ -1,8 +1,8 @@
 package com.getir.aau.librarymanagementsystem.controller;
 
-import com.getir.aau.librarymanagementsystem.model.dto.BookPageResponseDto;
-import com.getir.aau.librarymanagementsystem.model.dto.BookRequestDto;
-import com.getir.aau.librarymanagementsystem.model.dto.BookResponseDto;
+import com.getir.aau.librarymanagementsystem.model.dto.response.BookPageResponseDto;
+import com.getir.aau.librarymanagementsystem.model.dto.request.BookRequestDto;
+import com.getir.aau.librarymanagementsystem.model.dto.response.BookResponseDto;
 import com.getir.aau.librarymanagementsystem.service.BookService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

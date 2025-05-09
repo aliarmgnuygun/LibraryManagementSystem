@@ -1,7 +1,7 @@
 package com.getir.aau.librarymanagementsystem.service.impl;
 
-import com.getir.aau.librarymanagementsystem.model.dto.UserResponseDto;
-import com.getir.aau.librarymanagementsystem.model.dto.UserUpdateRequestDto;
+import com.getir.aau.librarymanagementsystem.model.dto.response.UserResponseDto;
+import com.getir.aau.librarymanagementsystem.model.dto.request.UserUpdateRequestDto;
 import com.getir.aau.librarymanagementsystem.model.entity.ERole;
 import com.getir.aau.librarymanagementsystem.model.entity.Role;
 import com.getir.aau.librarymanagementsystem.model.entity.User;

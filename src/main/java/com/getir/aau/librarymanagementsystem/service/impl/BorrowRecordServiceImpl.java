@@ -1,8 +1,8 @@
 package com.getir.aau.librarymanagementsystem.service.impl;
 
-import com.getir.aau.librarymanagementsystem.model.dto.BorrowItemRequestDto;
-import com.getir.aau.librarymanagementsystem.model.dto.BorrowRecordRequestDto;
-import com.getir.aau.librarymanagementsystem.model.dto.BorrowRecordResponseDto;
+import com.getir.aau.librarymanagementsystem.model.dto.request.BorrowItemRequestDto;
+import com.getir.aau.librarymanagementsystem.model.dto.request.BorrowRecordRequestDto;
+import com.getir.aau.librarymanagementsystem.model.dto.response.BorrowRecordResponseDto;
 import com.getir.aau.librarymanagementsystem.model.entity.*;
 import com.getir.aau.librarymanagementsystem.model.mapper.BorrowMapper;
 import com.getir.aau.librarymanagementsystem.repository.BookRepository;

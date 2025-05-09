@@ -1,8 +1,8 @@
 package com.getir.aau.librarymanagementsystem.service.impl;
 
-import com.getir.aau.librarymanagementsystem.model.dto.BookPageResponseDto;
-import com.getir.aau.librarymanagementsystem.model.dto.BookRequestDto;
-import com.getir.aau.librarymanagementsystem.model.dto.BookResponseDto;
+import com.getir.aau.librarymanagementsystem.model.dto.response.BookPageResponseDto;
+import com.getir.aau.librarymanagementsystem.model.dto.request.BookRequestDto;
+import com.getir.aau.librarymanagementsystem.model.dto.response.BookResponseDto;
 import com.getir.aau.librarymanagementsystem.model.entity.Author;
 import com.getir.aau.librarymanagementsystem.model.entity.Book;
 import com.getir.aau.librarymanagementsystem.model.entity.Category;

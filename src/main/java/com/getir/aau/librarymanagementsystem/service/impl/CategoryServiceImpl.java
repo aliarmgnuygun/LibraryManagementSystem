@@ -1,7 +1,7 @@
 package com.getir.aau.librarymanagementsystem.service.impl;
 
-import com.getir.aau.librarymanagementsystem.model.dto.CategoryRequestDto;
-import com.getir.aau.librarymanagementsystem.model.dto.CategoryResponseDto;
+import com.getir.aau.librarymanagementsystem.model.dto.request.CategoryRequestDto;
+import com.getir.aau.librarymanagementsystem.model.dto.response.CategoryResponseDto;
 import com.getir.aau.librarymanagementsystem.model.entity.Category;
 import com.getir.aau.librarymanagementsystem.model.mapper.CategoryMapper;
 import com.getir.aau.librarymanagementsystem.repository.CategoryRepository;

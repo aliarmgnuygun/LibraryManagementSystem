@@ -1,7 +1,7 @@
 package com.getir.aau.librarymanagementsystem.model.mapper;
 
-import com.getir.aau.librarymanagementsystem.model.dto.BorrowItemResponseDto;
-import com.getir.aau.librarymanagementsystem.model.dto.BorrowRecordResponseDto;
+import com.getir.aau.librarymanagementsystem.model.dto.response.BorrowItemResponseDto;
+import com.getir.aau.librarymanagementsystem.model.dto.response.BorrowRecordResponseDto;
 import com.getir.aau.librarymanagementsystem.model.entity.BorrowItem;
 import com.getir.aau.librarymanagementsystem.model.entity.BorrowRecord;
 import org.mapstruct.Mapper;

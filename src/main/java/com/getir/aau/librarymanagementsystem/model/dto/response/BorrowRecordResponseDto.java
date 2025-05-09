@@ -1,4 +1,4 @@
-package com.getir.aau.librarymanagementsystem.model.dto;
+package com.getir.aau.librarymanagementsystem.model.dto.response;
 
 import java.time.LocalDate;
 import java.util.List;

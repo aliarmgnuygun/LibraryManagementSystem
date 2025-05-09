@@ -2,7 +2,7 @@ package com.getir.aau.librarymanagementsystem.initializer;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.getir.aau.librarymanagementsystem.model.dto.BookRequestDto;
+import com.getir.aau.librarymanagementsystem.model.dto.request.BookRequestDto;
 import com.getir.aau.librarymanagementsystem.service.BookService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

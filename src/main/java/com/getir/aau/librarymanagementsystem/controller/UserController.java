@@ -1,7 +1,7 @@
 package com.getir.aau.librarymanagementsystem.controller;
 
-import com.getir.aau.librarymanagementsystem.model.dto.UserResponseDto;
-import com.getir.aau.librarymanagementsystem.model.dto.UserUpdateRequestDto;
+import com.getir.aau.librarymanagementsystem.model.dto.response.UserResponseDto;
+import com.getir.aau.librarymanagementsystem.model.dto.request.UserUpdateRequestDto;
 import com.getir.aau.librarymanagementsystem.security.auth.dto.RegisterRequestDto;
 import com.getir.aau.librarymanagementsystem.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;

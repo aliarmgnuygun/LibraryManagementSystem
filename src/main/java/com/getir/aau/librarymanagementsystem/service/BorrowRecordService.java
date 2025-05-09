@@ -1,7 +1,7 @@
 package com.getir.aau.librarymanagementsystem.service;
 
-import com.getir.aau.librarymanagementsystem.model.dto.BorrowRecordRequestDto;
-import com.getir.aau.librarymanagementsystem.model.dto.BorrowRecordResponseDto;
+import com.getir.aau.librarymanagementsystem.model.dto.request.BorrowRecordRequestDto;
+import com.getir.aau.librarymanagementsystem.model.dto.response.BorrowRecordResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

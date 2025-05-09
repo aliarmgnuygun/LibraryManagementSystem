@@ -1,4 +1,4 @@
-package com.getir.aau.librarymanagementsystem.model.dto;
+package com.getir.aau.librarymanagementsystem.model.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;

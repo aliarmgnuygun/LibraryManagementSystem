@@ -1,6 +1,6 @@
 package com.getir.aau.librarymanagementsystem.controller;
 
-import com.getir.aau.librarymanagementsystem.model.dto.BorrowItemResponseDto;
+import com.getir.aau.librarymanagementsystem.model.dto.response.BorrowItemResponseDto;
 import com.getir.aau.librarymanagementsystem.service.BorrowItemService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

@@ -1,7 +1,7 @@
 package com.getir.aau.librarymanagementsystem.service.impl;
 
-import com.getir.aau.librarymanagementsystem.model.dto.AuthorRequestDto;
-import com.getir.aau.librarymanagementsystem.model.dto.AuthorResponseDto;
+import com.getir.aau.librarymanagementsystem.model.dto.request.AuthorRequestDto;
+import com.getir.aau.librarymanagementsystem.model.dto.response.AuthorResponseDto;
 import com.getir.aau.librarymanagementsystem.model.entity.Author;
 import com.getir.aau.librarymanagementsystem.model.mapper.AuthorMapper;
 import com.getir.aau.librarymanagementsystem.repository.AuthorRepository;

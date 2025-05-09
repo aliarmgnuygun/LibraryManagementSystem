@@ -1,7 +1,7 @@
 package com.getir.aau.librarymanagementsystem.service;
 
-import com.getir.aau.librarymanagementsystem.model.dto.AuthorRequestDto;
-import com.getir.aau.librarymanagementsystem.model.dto.AuthorResponseDto;
+import com.getir.aau.librarymanagementsystem.model.dto.request.AuthorRequestDto;
+import com.getir.aau.librarymanagementsystem.model.dto.response.AuthorResponseDto;
 
 import java.util.List;
 
