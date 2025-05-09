@@ -1,5 +1,6 @@
 package com.getir.aau.librarymanagementsystem.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -29,8 +30,9 @@ public record BookRequestDto(
         @NotBlank(message = "Description is required")
         String description,
 
+        @JsonFormat(pattern = "dd/MM/yyyy")
+        @DateTimeFormat(pattern = "dd/MM/yyyy")
         @NotNull(message = "Publication date is required")
-        @DateTimeFormat(pattern="dd/MM/yyyy")
         LocalDate publicationDate,
 
         @NotBlank(message = "Genre is required")
