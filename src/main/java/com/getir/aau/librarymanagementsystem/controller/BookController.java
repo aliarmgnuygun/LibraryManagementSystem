@@ -30,8 +30,8 @@ public class BookController {
             @ApiResponse(responseCode = "400", description = "Invalid input")
     })
     @PostMapping
-    public ResponseEntity<BookResponseDto> createBook(@Valid @RequestBody BookRequestDto dto) {
-        return new ResponseEntity<>(bookService.createBook(dto), HttpStatus.CREATED);
+    public ResponseEntity<BookResponseDto> create(@Valid @RequestBody BookRequestDto dto) {
+        return new ResponseEntity<>(bookService.create(dto), HttpStatus.CREATED);
     }
 
     @Operation(summary = "Update an existing book", responses = {
@@ -40,9 +40,9 @@ public class BookController {
             @ApiResponse(responseCode = "404", description = "Book not found")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<BookResponseDto> updateBook(@PathVariable Long id,
-                                                      @Valid @RequestBody BookRequestDto dto) {
-        return ResponseEntity.ok(bookService.updateBook(id, dto));
+    public ResponseEntity<BookResponseDto> update(@PathVariable Long id,
+                                                  @Valid @RequestBody BookRequestDto dto) {
+        return ResponseEntity.ok(bookService.update(id, dto));
     }
 
     @Operation(summary = "Delete a book", responses = {
@@ -50,8 +50,8 @@ public class BookController {
             @ApiResponse(responseCode = "404", description = "Book not found")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
-        bookService.deleteBook(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        bookService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -61,60 +61,104 @@ public class BookController {
             @ApiResponse(responseCode = "404", description = "Book not found")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<BookResponseDto> getBookById(@PathVariable Long id) {
-        return ResponseEntity.ok(bookService.getBookById(id));
+    public ResponseEntity<BookResponseDto> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(bookService.getById(id));
     }
 
-    @Operation(summary = "Search books by keyword")
+    @Operation(summary = "Search books by keyword (title, authorName, genre, isbn, categoryName)",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Books found",
+                            content = @Content(schema = @Schema(implementation = BookPageResponseDto.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid input")
+            })
     @GetMapping("/search")
-    public ResponseEntity<BookPageResponseDto> searchBooks(@RequestParam(required = false) String keyword,
-                                                           Pageable pageable) {
-        return ResponseEntity.ok(bookService.searchBooks(keyword != null ? keyword : "", pageable));
+    public ResponseEntity<BookPageResponseDto> searchByKeywords(@RequestParam(required = false) String keyword,
+                                                                Pageable pageable) {
+        return ResponseEntity.ok(bookService.searchByKeywords(keyword != null ? keyword : "", pageable));
     }
 
-    @Operation(summary = "Get books by category ID")
+    @Operation(summary = "Get books by category ID", responses = {
+            @ApiResponse(responseCode = "200", description = "Books retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = BookPageResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "Category not found")
+    })
     @GetMapping("/category/{categoryId}")
-    public ResponseEntity<BookPageResponseDto> getBooksByCategory(@PathVariable Long categoryId, Pageable pageable) {
-        return ResponseEntity.ok(bookService.getBooksByCategoryId(categoryId, pageable));
+    public ResponseEntity<BookPageResponseDto> getByCategoryId(@PathVariable Long categoryId, Pageable pageable) {
+        return ResponseEntity.ok(bookService.getByCategoryId(categoryId, pageable));
     }
 
-    @Operation(summary = "Get books by author ID")
+    @Operation(summary = "Get books by author ID", responses = {
+            @ApiResponse(responseCode = "200", description = "Books retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = BookPageResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "Author not found")
+    })
     @GetMapping("/author/{authorId}")
-    public ResponseEntity<BookPageResponseDto> getBooksByAuthor(@PathVariable Long authorId, Pageable pageable) {
-        return ResponseEntity.ok(bookService.getBooksByAuthorId(authorId, pageable));
+    public ResponseEntity<BookPageResponseDto> getByAuthorId(@PathVariable Long authorId, Pageable pageable) {
+        return ResponseEntity.ok(bookService.getByAuthorId(authorId, pageable));
     }
 
-    @Operation(summary = "Get available books")
+    @Operation(summary = "Get available books", responses = {
+            @ApiResponse(responseCode = "200", description = "Available books retrieved",
+                    content = @Content(schema = @Schema(implementation = BookPageResponseDto.class)))
+    })
     @GetMapping("/available")
-    public ResponseEntity<BookPageResponseDto> getAvailableBooks(Pageable pageable) {
-        return ResponseEntity.ok(bookService.getAvailableBooks(pageable));
+    public ResponseEntity<BookPageResponseDto> getAvailable(Pageable pageable) {
+        return ResponseEntity.ok(bookService.getAvailable(pageable));
     }
 
-    @Operation(summary = "Get books by genre")
+    @Operation(summary = "Get unavailable books", responses = {
+            @ApiResponse(responseCode = "200", description = "Unavailable books retrieved",
+                    content = @Content(schema = @Schema(implementation = BookPageResponseDto.class)))
+    })
+    @GetMapping("/unavailable")
+    public ResponseEntity<BookPageResponseDto> getUnavailable(Pageable pageable) {
+        return ResponseEntity.ok(bookService.getUnavailable(pageable));
+    }
+
+    @Operation(summary = "Get books by genre", responses = {
+            @ApiResponse(responseCode = "200", description = "Books retrieved by genre",
+                    content = @Content(schema = @Schema(implementation = BookPageResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid genre parameter")
+    })
     @GetMapping("/genre")
-    public ResponseEntity<BookPageResponseDto> getBooksByGenre(@RequestParam String genre, Pageable pageable) {
-        return ResponseEntity.ok(bookService.getBooksByGenre(genre, pageable));
+    public ResponseEntity<BookPageResponseDto> getByGenre(@RequestParam String genre, Pageable pageable) {
+        return ResponseEntity.ok(bookService.getByGenre(genre, pageable));
     }
 
-    @Operation(summary = "Get books by author name")
+    @Operation(summary = "Get books by author name", responses = {
+            @ApiResponse(responseCode = "200", description = "Books retrieved by author name",
+                    content = @Content(schema = @Schema(implementation = BookPageResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid author name")
+    })
     @GetMapping("/author/name")
-    public ResponseEntity<BookPageResponseDto> getBooksByAuthorName(@RequestParam String name, Pageable pageable) {
-        return ResponseEntity.ok(bookService.getBooksByAuthorName(name, pageable));
+    public ResponseEntity<BookPageResponseDto> getByAuthorName(@RequestParam String name, Pageable pageable) {
+        return ResponseEntity.ok(bookService.getByAuthorName(name, pageable));
     }
 
-    @Operation(summary = "Get books by title")
+    @Operation(summary = "Get books by title", responses = {
+            @ApiResponse(responseCode = "200", description = "Books retrieved by title",
+                    content = @Content(schema = @Schema(implementation = BookPageResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid title parameter")
+    })
     @GetMapping("/title")
-    public ResponseEntity<BookPageResponseDto> getBooksByTitle(@RequestParam String title, Pageable pageable) {
-        return ResponseEntity.ok(bookService.getBooksByTitle(title, pageable));
+    public ResponseEntity<BookPageResponseDto> getByTitle(@RequestParam String title, Pageable pageable) {
+        return ResponseEntity.ok(bookService.getByTitle(title, pageable));
     }
 
-    @Operation(summary = "Get book by ISBN")
+    @Operation(summary = "Get book by ISBN", responses = {
+            @ApiResponse(responseCode = "200", description = "Book retrieved by ISBN",
+                    content = @Content(schema = @Schema(implementation = BookResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "Book with specified ISBN not found")
+    })
     @GetMapping("/isbn/{isbn}")
-    public ResponseEntity<BookResponseDto> getBookByIsbn(@PathVariable String isbn) {
-        return ResponseEntity.ok(bookService.getBookByIsbn(isbn));
+    public ResponseEntity<BookResponseDto> getByIsbn(@PathVariable String isbn) {
+        return ResponseEntity.ok(bookService.getByIsbn(isbn));
     }
 
-    @Operation(summary = "Count books by author ID")
+    @Operation(summary = "Count books by author ID", responses = {
+            @ApiResponse(responseCode = "200", description = "Book count retrieved"),
+            @ApiResponse(responseCode = "404", description = "Author not found")
+    })
     @GetMapping("/count/author/{authorId}")
     public ResponseEntity<Long> countBooksByAuthor(@PathVariable Long authorId) {
         return ResponseEntity.ok(bookService.countBooksByAuthor(authorId));

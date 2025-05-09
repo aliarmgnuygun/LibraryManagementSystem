@@ -35,11 +35,15 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     @Query("SELECT b FROM Book b WHERE b.available = true")
     Page<Book> findAvailableBooks(Pageable pageable);
 
-    @Query("SELECT b FROM Book b JOIN b.author a WHERE " +
+    @Query("SELECT b FROM Book b WHERE b.available = true")
+    Page<Book> findUnavailableBooks(Pageable pageable);
+
+    @Query("SELECT DISTINCT b FROM Book b LEFT JOIN b.author a LEFT JOIN b.category c WHERE " +
             "LOWER(b.title) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
             "LOWER(a.name) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
             "LOWER(b.isbn) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-            "LOWER(b.genre) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+            "LOWER(b.genre) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+            "LOWER(c.name) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     Page<Book> searchBooks(@Param("searchTerm") String searchTerm, Pageable pageable);
 
     @Query("SELECT COUNT(b) FROM Book b WHERE b.author.id = :authorId")

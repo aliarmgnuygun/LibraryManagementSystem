@@ -35,7 +35,7 @@ public class BookInitializer implements CommandLineRunner {
 
         for (BookRequestDto dto : books) {
             try {
-                bookService.createBook(dto);
+                bookService.create(dto);
                 created++;
             } catch (Exception e) {
                 log.warn("❌ Failed to create book: {} - {}", dto.title(), e.getMessage());

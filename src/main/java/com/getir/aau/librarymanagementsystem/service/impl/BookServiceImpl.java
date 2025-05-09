@@ -11,13 +11,16 @@ import com.getir.aau.librarymanagementsystem.repository.AuthorRepository;
 import com.getir.aau.librarymanagementsystem.repository.BookRepository;
 import com.getir.aau.librarymanagementsystem.repository.CategoryRepository;
 import com.getir.aau.librarymanagementsystem.service.BookService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
@@ -26,21 +29,34 @@ public class BookServiceImpl implements BookService {
     private final BookMapper bookMapper;
 
     @Override
-    public BookResponseDto createBook(BookRequestDto dto) {
-        Author author = authorRepository.findById(dto.authorId()).orElseThrow();
-        Category category = categoryRepository.findById(dto.categoryId()).orElseThrow();
+    public BookResponseDto create(BookRequestDto dto) {
+        log.info("Creating book with title: {}", dto.title());
+
+        Author author = authorRepository.findById(dto.authorId())
+                .orElseThrow(() -> new EntityNotFoundException("Author not found with ID: " + dto.authorId()));
+        Category category = categoryRepository.findById(dto.categoryId())
+                .orElseThrow(() -> new EntityNotFoundException("Category not found with ID: " + dto.categoryId()));
 
         Book book = bookMapper.toEntity(dto, author, category);
-        return bookMapper.toDto(bookRepository.save(book));
+        Book saved = bookRepository.save(book);
+
+        log.info("Book created successfully with ID: {}", saved.getId());
+        return bookMapper.toDto(saved);
     }
 
-    public BookResponseDto updateBook(Long id, BookRequestDto dto) {
-        Book book = bookRepository.findById(id).orElseThrow();
-        Author author = authorRepository.findById(dto.authorId()).orElseThrow();
-        Category category = categoryRepository.findById(dto.categoryId()).orElseThrow();
+    @Override
+    public BookResponseDto update(Long id, BookRequestDto dto) {
+        log.info("Updating book with ID: {}", id);
+
+        Book existing = bookRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Book not found with ID: " + id));
+        Author author = authorRepository.findById(dto.authorId())
+                .orElseThrow(() -> new EntityNotFoundException("Author not found with ID: " + dto.authorId()));
+        Category category = categoryRepository.findById(dto.categoryId())
+                .orElseThrow(() -> new EntityNotFoundException("Category not found with ID: " + dto.categoryId()));
 
         Book updated = Book.builder()
-                .id(book.getId())
+                .id(existing.getId())
                 .title(dto.title())
                 .isbn(dto.isbn())
                 .description(dto.description())
@@ -52,63 +68,96 @@ public class BookServiceImpl implements BookService {
                 .category(category)
                 .build();
 
-        return bookMapper.toDto(bookRepository.save(updated));
+        Book saved = bookRepository.save(updated);
+        log.info("Book updated successfully with ID: {}", saved.getId());
+        return bookMapper.toDto(saved);
     }
 
     @Override
-    public BookResponseDto getBookById(Long id) {
-        return bookMapper.toDto(bookRepository.findById(id).orElseThrow());
+    public void delete(Long id) {
+        log.warn("Deleting book with ID: {}", id);
+        if (!bookRepository.existsById(id)) {
+            throw new EntityNotFoundException("Book not found with ID: " + id);
+        }
+        bookRepository.deleteById(id);
+        log.info("Book deleted with ID: {}", id);
     }
 
     @Override
-    public BookResponseDto getBookByIsbn(String isbn) {
-        return bookMapper.toDto(bookRepository.findByIsbn(isbn).orElseThrow());
+    public BookResponseDto getById(Long id) {
+        log.info("Fetching book by ID: {}", id);
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Book not found with ID: " + id));
+        return bookMapper.toDto(book);
     }
 
     @Override
-    public BookPageResponseDto getBooksByTitle(String title, Pageable pageable) {
+    public BookResponseDto getByIsbn(String isbn) {
+        log.info("Fetching book by ISBN: {}", isbn);
+        Book book = bookRepository.findByIsbn(isbn)
+                .orElseThrow(() -> new EntityNotFoundException("Book not found with ISBN: " + isbn));
+        return bookMapper.toDto(book);
+    }
+
+    @Override
+    public BookPageResponseDto getByTitle(String title, Pageable pageable) {
+        log.info("Searching books by title: {}", title);
         Page<BookResponseDto> page = bookRepository.findByTitleContainingIgnoreCase(title, pageable)
                 .map(bookMapper::toDto);
         return new BookPageResponseDto(page.getContent(), page.getTotalPages(), page.getTotalElements());
     }
 
     @Override
-    public BookPageResponseDto getBooksByAuthorId(Long authorId, Pageable pageable) {
+    public BookPageResponseDto getByAuthorId(Long authorId, Pageable pageable) {
+        log.info("Searching books by author ID: {}", authorId);
         Page<BookResponseDto> page = bookRepository.findByAuthorId(authorId, pageable)
                 .map(bookMapper::toDto);
         return new BookPageResponseDto(page.getContent(), page.getTotalPages(), page.getTotalElements());
     }
 
     @Override
-    public BookPageResponseDto getBooksByAuthorName(String authorName, Pageable pageable) {
+    public BookPageResponseDto getByAuthorName(String authorName, Pageable pageable) {
+        log.info("Searching books by author name: {}", authorName);
         Page<BookResponseDto> page = bookRepository.findByAuthorNameContainingIgnoreCase(authorName, pageable)
                 .map(bookMapper::toDto);
         return new BookPageResponseDto(page.getContent(), page.getTotalPages(), page.getTotalElements());
     }
 
     @Override
-    public BookPageResponseDto getBooksByCategoryId(Long categoryId, Pageable pageable) {
+    public BookPageResponseDto getByCategoryId(Long categoryId, Pageable pageable) {
+        log.info("Searching books by category ID: {}", categoryId);
         Page<BookResponseDto> page = bookRepository.findByCategoryId(categoryId, pageable)
                 .map(bookMapper::toDto);
         return new BookPageResponseDto(page.getContent(), page.getTotalPages(), page.getTotalElements());
     }
 
     @Override
-    public BookPageResponseDto getBooksByGenre(String genre, Pageable pageable) {
+    public BookPageResponseDto getByGenre(String genre, Pageable pageable) {
+        log.info("Searching books by genre: {}", genre);
         Page<BookResponseDto> page = bookRepository.findByGenreContainingIgnoreCase(genre, pageable)
                 .map(bookMapper::toDto);
         return new BookPageResponseDto(page.getContent(), page.getTotalPages(), page.getTotalElements());
     }
 
     @Override
-    public BookPageResponseDto getAvailableBooks(Pageable pageable) {
+    public BookPageResponseDto getAvailable(Pageable pageable) {
+        log.info("Fetching available books");
         Page<BookResponseDto> page = bookRepository.findAvailableBooks(pageable)
                 .map(bookMapper::toDto);
         return new BookPageResponseDto(page.getContent(), page.getTotalPages(), page.getTotalElements());
     }
 
     @Override
-    public BookPageResponseDto searchBooks(String searchTerm, Pageable pageable) {
+    public BookPageResponseDto getUnavailable(Pageable pageable) {
+        log.info("Fetching unavailable books");
+        Page<BookResponseDto> page = bookRepository.findUnavailableBooks(pageable)
+                .map(bookMapper::toDto);
+        return new BookPageResponseDto(page.getContent(), page.getTotalPages(), page.getTotalElements());
+    }
+
+    @Override
+    public BookPageResponseDto searchByKeywords(String searchTerm, Pageable pageable) {
+        log.info("Searching books with keyword: {}", searchTerm);
         Page<BookResponseDto> page = bookRepository.searchBooks(searchTerm, pageable)
                 .map(bookMapper::toDto);
         return new BookPageResponseDto(page.getContent(), page.getTotalPages(), page.getTotalElements());
@@ -116,11 +165,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Long countBooksByAuthor(Long authorId) {
+        log.info("Counting books for author ID: {}", authorId);
         return bookRepository.countBooksByAuthorId(authorId);
-    }
-
-    @Override
-    public void deleteBook(Long id) {
-        bookRepository.deleteById(id);
     }
 }
