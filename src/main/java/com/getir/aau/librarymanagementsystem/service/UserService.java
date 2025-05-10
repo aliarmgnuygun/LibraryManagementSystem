@@ -2,6 +2,7 @@ package com.getir.aau.librarymanagementsystem.service;
 
 import com.getir.aau.librarymanagementsystem.model.dto.response.UserResponseDto;
 import com.getir.aau.librarymanagementsystem.model.dto.request.UserUpdateRequestDto;
+import com.getir.aau.librarymanagementsystem.model.entity.ERole;
 import com.getir.aau.librarymanagementsystem.model.entity.User;
 import com.getir.aau.librarymanagementsystem.security.auth.dto.RegisterRequestDto;
 
@@ -18,7 +19,9 @@ public interface UserService {
 
     List<UserResponseDto> getAll();
 
-    UserResponseDto updateUser(Long id, UserUpdateRequestDto dto);
+    UserResponseDto update(Long id, UserUpdateRequestDto dto);
+
+    UserResponseDto changeRole(Long id, ERole newRole);
 
     void delete(Long id);
 

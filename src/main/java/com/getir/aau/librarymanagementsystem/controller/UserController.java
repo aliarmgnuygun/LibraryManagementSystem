@@ -1,10 +1,13 @@
 package com.getir.aau.librarymanagementsystem.controller;
 
+import com.getir.aau.librarymanagementsystem.exception.ExceptionResult;
 import com.getir.aau.librarymanagementsystem.model.dto.response.UserResponseDto;
 import com.getir.aau.librarymanagementsystem.model.dto.request.UserUpdateRequestDto;
+import com.getir.aau.librarymanagementsystem.model.entity.ERole;
 import com.getir.aau.librarymanagementsystem.security.auth.dto.RegisterRequestDto;
 import com.getir.aau.librarymanagementsystem.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -24,10 +27,11 @@ public class UserController {
 
     private final UserService userService;
 
-    @Operation(summary = "Create a new user (as librarian)", responses = {
+    @Operation(summary = "Create a new user (default role: USER)", responses = {
             @ApiResponse(responseCode = "200", description = "User created successfully",
                     content = @Content(schema = @Schema(implementation = UserResponseDto.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid input")
+            @ApiResponse(responseCode = "400", description = "Invalid input or email already in use",
+                    content = @Content(schema = @Schema(implementation = ExceptionResult.class)))
     })
     @PostMapping
     public ResponseEntity<UserResponseDto> create(@Valid @RequestBody RegisterRequestDto dto) {
@@ -37,7 +41,8 @@ public class UserController {
     @Operation(summary = "Get user by email", responses = {
             @ApiResponse(responseCode = "200", description = "User found",
                     content = @Content(schema = @Schema(implementation = UserResponseDto.class))),
-            @ApiResponse(responseCode = "404", description = "User not found")
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(schema = @Schema(implementation = ExceptionResult.class)))
     })
     @GetMapping("/email")
     public ResponseEntity<UserResponseDto> getByEmail(@RequestParam String email) {
@@ -47,7 +52,8 @@ public class UserController {
     @Operation(summary = "Get user by ID", responses = {
             @ApiResponse(responseCode = "200", description = "User found",
                     content = @Content(schema = @Schema(implementation = UserResponseDto.class))),
-            @ApiResponse(responseCode = "404", description = "User not found")
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(schema = @Schema(implementation = ExceptionResult.class)))
     })
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getById(@PathVariable Long id) {
@@ -55,8 +61,8 @@ public class UserController {
     }
 
     @Operation(summary = "Get all users", responses = {
-            @ApiResponse(responseCode = "200", description = "Users retrieved",
-                    content = @Content(schema = @Schema(implementation = UserResponseDto.class)))
+            @ApiResponse(responseCode = "200", description = "Users retrieved successfully",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserResponseDto.class))))
     })
     @GetMapping
     public ResponseEntity<List<UserResponseDto>> getAll() {
@@ -64,20 +70,38 @@ public class UserController {
     }
 
     @Operation(summary = "Update a user", responses = {
-            @ApiResponse(responseCode = "200", description = "User updated",
+            @ApiResponse(responseCode = "200", description = "User updated successfully",
                     content = @Content(schema = @Schema(implementation = UserResponseDto.class))),
-            @ApiResponse(responseCode = "404", description = "User not found")
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(schema = @Schema(implementation = ExceptionResult.class))),
+            @ApiResponse(responseCode = "400", description = "Email already in use",
+                    content = @Content(schema = @Schema(implementation = ExceptionResult.class)))
     })
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDto> update(
             @PathVariable Long id,
             @Valid @RequestBody UserUpdateRequestDto dto) {
-        return ResponseEntity.ok(userService.updateUser(id, dto));
+        return ResponseEntity.ok(userService.update(id, dto));
+    }
+
+    @Operation(summary = "Change a user's role", description = "Change the role of an existing user. Only LIBRARIAN or ADMIN users should be allowed.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "User role updated successfully",
+                            content = @Content(schema = @Schema(implementation = UserResponseDto.class))),
+                    @ApiResponse(responseCode = "404", description = "User or Role not found",
+                            content = @Content(schema = @Schema(implementation = ExceptionResult.class)))
+            })
+    @PutMapping("/{id}/role")
+    public ResponseEntity<UserResponseDto> changeRole(
+            @PathVariable Long id,
+            @RequestParam ERole role) {
+        return ResponseEntity.ok(userService.changeRole(id, role));
     }
 
     @Operation(summary = "Delete a user", responses = {
-            @ApiResponse(responseCode = "204", description = "User deleted"),
-            @ApiResponse(responseCode = "404", description = "User not found")
+            @ApiResponse(responseCode = "204", description = "User deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(schema = @Schema(implementation = ExceptionResult.class)))
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
