@@ -1,5 +1,7 @@
 package com.getir.aau.librarymanagementsystem.service.impl;
 
+import com.getir.aau.librarymanagementsystem.exception.ResourceAlreadyExistsException;
+import com.getir.aau.librarymanagementsystem.exception.ResourceNotFoundException;
 import com.getir.aau.librarymanagementsystem.model.dto.response.BookPageResponseDto;
 import com.getir.aau.librarymanagementsystem.model.dto.request.BookRequestDto;
 import com.getir.aau.librarymanagementsystem.model.dto.response.BookResponseDto;
@@ -32,10 +34,22 @@ public class BookServiceImpl implements BookService {
     public BookResponseDto create(BookRequestDto dto) {
         log.info("Creating book with title: {}", dto.title());
 
+        if (bookRepository.existsByIsbnIgnoreCase(dto.isbn())) {
+            log.warn("Book with ISBN {} already exists", dto.isbn());
+            throw new ResourceAlreadyExistsException("Book", "isbn", dto.isbn());
+        }
+
         Author author = authorRepository.findById(dto.authorId())
-                .orElseThrow(() -> new EntityNotFoundException("Author not found with ID: " + dto.authorId()));
+                .orElseThrow(() -> {
+                    log.error("Author not found with ID: {}", dto.authorId());
+                    return new ResourceNotFoundException("Author", "id", dto.authorId());
+                });
+
         Category category = categoryRepository.findById(dto.categoryId())
-                .orElseThrow(() -> new EntityNotFoundException("Category not found with ID: " + dto.categoryId()));
+                .orElseThrow(() -> {
+                    log.error("Category not found with ID: {}", dto.categoryId());
+                    return new ResourceNotFoundException("Category", "id", dto.categoryId());
+                });
 
         Book book = bookMapper.toEntity(dto, author, category);
         Book saved = bookRepository.save(book);
@@ -49,11 +63,12 @@ public class BookServiceImpl implements BookService {
         log.info("Updating book with ID: {}", id);
 
         Book existing = bookRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Book not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Book", "id", id));
+
         Author author = authorRepository.findById(dto.authorId())
-                .orElseThrow(() -> new EntityNotFoundException("Author not found with ID: " + dto.authorId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Author", "id", dto.authorId()));
         Category category = categoryRepository.findById(dto.categoryId())
-                .orElseThrow(() -> new EntityNotFoundException("Category not found with ID: " + dto.categoryId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", dto.categoryId()));
 
         Book updated = Book.builder()
                 .id(existing.getId())
@@ -77,7 +92,7 @@ public class BookServiceImpl implements BookService {
     public void delete(Long id) {
         log.warn("Deleting book with ID: {}", id);
         if (!bookRepository.existsById(id)) {
-            throw new EntityNotFoundException("Book not found with ID: " + id);
+            throw new ResourceNotFoundException("Book", "id", id);
         }
         bookRepository.deleteById(id);
         log.info("Book deleted with ID: {}", id);
@@ -142,7 +157,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookPageResponseDto getAvailable(Pageable pageable) {
         log.info("Fetching available books");
-        Page<BookResponseDto> page = bookRepository.findAvailableBooks(pageable)
+        Page<BookResponseDto> page = bookRepository.findAvailable(pageable)
                 .map(bookMapper::toDto);
         return new BookPageResponseDto(page.getContent(), page.getTotalPages(), page.getTotalElements());
     }
@@ -150,7 +165,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookPageResponseDto getUnavailable(Pageable pageable) {
         log.info("Fetching unavailable books");
-        Page<BookResponseDto> page = bookRepository.findUnavailableBooks(pageable)
+        Page<BookResponseDto> page = bookRepository.findUnavailable(pageable)
                 .map(bookMapper::toDto);
         return new BookPageResponseDto(page.getContent(), page.getTotalPages(), page.getTotalElements());
     }
@@ -158,7 +173,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookPageResponseDto searchByKeywords(String searchTerm, Pageable pageable) {
         log.info("Searching books with keyword: {}", searchTerm);
-        Page<BookResponseDto> page = bookRepository.searchBooks(searchTerm, pageable)
+        Page<BookResponseDto> page = bookRepository.searchByKeywords(searchTerm, pageable)
                 .map(bookMapper::toDto);
         return new BookPageResponseDto(page.getContent(), page.getTotalPages(), page.getTotalElements());
     }

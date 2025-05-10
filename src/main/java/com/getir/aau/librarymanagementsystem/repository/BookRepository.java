@@ -13,9 +13,8 @@ import java.util.Optional;
 @Repository
 public interface BookRepository extends JpaRepository<Book, Long> {
 
-    @SuppressWarnings("NullableProblems")
-    Optional<Book> findById(Long id);
     Optional<Book> findByIsbn(String isbn);
+    boolean existsByIsbnIgnoreCase(String isbn);
 
     @Query("SELECT b FROM Book b WHERE LOWER(b.title) LIKE LOWER(CONCAT('%', :title, '%'))")
     Page<Book> findByTitleContainingIgnoreCase(@Param("title") String title, Pageable pageable);
@@ -33,10 +32,10 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     Page<Book> findByGenreContainingIgnoreCase(@Param("genre") String genre, Pageable pageable);
 
     @Query("SELECT b FROM Book b WHERE b.available = true")
-    Page<Book> findAvailableBooks(Pageable pageable);
+    Page<Book> findAvailable(Pageable pageable);
 
     @Query("SELECT b FROM Book b WHERE b.available = true")
-    Page<Book> findUnavailableBooks(Pageable pageable);
+    Page<Book> findUnavailable(Pageable pageable);
 
     @Query("SELECT DISTINCT b FROM Book b LEFT JOIN b.author a LEFT JOIN b.category c WHERE " +
             "LOWER(b.title) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
@@ -44,7 +43,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "LOWER(b.isbn) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
             "LOWER(b.genre) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
             "LOWER(c.name) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
-    Page<Book> searchBooks(@Param("searchTerm") String searchTerm, Pageable pageable);
+    Page<Book> searchByKeywords(@Param("searchTerm") String searchTerm, Pageable pageable);
 
     @Query("SELECT COUNT(b) FROM Book b WHERE b.author.id = :authorId")
     Long countBooksByAuthorId(@Param("authorId") Long authorId);

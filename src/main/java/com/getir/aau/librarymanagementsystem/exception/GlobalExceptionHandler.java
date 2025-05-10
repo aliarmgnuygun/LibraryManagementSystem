@@ -20,6 +20,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<ExceptionResult> handleResourceNotFoundException(ResourceNotFoundException exception) {
+        log.warn("Resource not found: {}", exception.getMessage());
         return new ResponseEntity<>(
                 new ExceptionResult(HttpStatus.NOT_FOUND.value(), exception.getMessage()),
                 HttpStatus.NOT_FOUND
@@ -38,6 +39,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceAlreadyExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ResponseEntity<ExceptionResult> handleResourceAlreadyExistsException(ResourceAlreadyExistsException exception) {
+        log.warn("Resource already exists: {}", exception.getMessage());
         return new ResponseEntity<>(
                 new ExceptionResult(HttpStatus.CONFLICT.value(), exception.getMessage()),
                 HttpStatus.CONFLICT
