@@ -46,10 +46,17 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/error").permitAll()
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html",
+                                "/error",
+                                "/api/auth/**"
+                        ).permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
 
                         // Book Management
+                        .requestMatchers(HttpMethod.GET, "/api/books/unavailable").hasRole("LIBRARIAN")
                         .requestMatchers(HttpMethod.GET, "/api/books/**").hasAnyRole("USER", "LIBRARIAN")
                         .requestMatchers(HttpMethod.POST, "/api/books/**").hasRole("LIBRARIAN")
                         .requestMatchers(HttpMethod.PUT, "/api/books/**").hasRole("LIBRARIAN")
@@ -57,9 +64,17 @@ public class SecurityConfig {
 
                         // User Management
                         .requestMatchers(HttpMethod.GET, "/api/users/me").hasAnyRole("USER", "LIBRARIAN")
-                        .requestMatchers(HttpMethod.GET, "/api/users/**").hasRole("LIBRARIAN")
-                        .requestMatchers(HttpMethod.PUT, "/api/users/**").hasRole("LIBRARIAN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("LIBRARIAN")
+                        .requestMatchers("/api/users/**").hasRole("LIBRARIAN")
+
+                        // Category Management
+                        .requestMatchers("/api/categories/**").hasRole("LIBRARIAN")
+
+                        // Author Management
+                        .requestMatchers("/api/authors/**").hasRole("LIBRARIAN")
+
+
+
+
 
                         .anyRequest().authenticated()
                 )

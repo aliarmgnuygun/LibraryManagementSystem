@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,6 +37,18 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserResponseDto> create(@Valid @RequestBody RegisterRequestDto dto) {
         return ResponseEntity.ok(userService.create(dto));
+    }
+
+    @Operation(summary = "Get current user's own information", responses = {
+            @ApiResponse(responseCode = "200", description = "User details retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = UserResponseDto.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content(schema = @Schema(implementation = ExceptionResult.class))),
+    })
+    @GetMapping("/me")
+    public ResponseEntity<UserResponseDto> getCurrentUser(Authentication authentication) {
+        String email = authentication.getName();
+        return ResponseEntity.ok(userService.getByEmail(email));
     }
 
     @Operation(summary = "Get user by email", responses = {
