@@ -91,7 +91,6 @@ public class UserServiceImpl implements UserService {
                 .toList();
     }
 
-
     @Override
     public UserResponseDto update(Long id, UserUpdateRequestDto dto) {
         log.info("Updating user with ID: {}", id);
@@ -105,20 +104,12 @@ public class UserServiceImpl implements UserService {
             throw new ResourceAlreadyExistsException("User", "email", dto.email());
         }
 
-        if (dto.role() != null) {
-            Role role = roleRepository.findByName(dto.role())
-                    .orElseThrow(() -> {
-                        log.error("Role not found: {}", dto.role());
-                        return new ResourceNotFoundException("Role", "name", dto.role());
-                    });
-            user.setRole(role);
-        }
-
         userMapper.updateUserFromDto(dto, user);
 
         log.info("User updated successfully with ID: {}", user.getId());
         return userMapper.toDto(user);
     }
+
     @Override
     public UserResponseDto changeRole(Long userId, ERole newRole) {
         log.info("Changing role of user ID: {} to {}", userId, newRole);

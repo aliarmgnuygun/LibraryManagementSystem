@@ -46,7 +46,7 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = ExceptionResult.class))),
     })
     @GetMapping("/me")
-    public ResponseEntity<UserResponseDto> getCurrentUser(Authentication authentication) {
+    public ResponseEntity<UserResponseDto> getMe(Authentication authentication) {
         String email = authentication.getName();
         return ResponseEntity.ok(userService.getByEmail(email));
     }

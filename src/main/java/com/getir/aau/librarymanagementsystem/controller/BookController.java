@@ -143,13 +143,13 @@ public class BookController {
                     @Parameter(
                             name = "size",
                             description = "Page size",
-                            example = "20",
-                            schema = @Schema(type = "integer", defaultValue = "20")
+                            example = "10",
+                            schema = @Schema(type = "integer", defaultValue = "10")
                     ),
                     @Parameter(
                             name = "sort",
-                            description = "Sort field and direction (e.g. title,asc)",
-                            example = "title,asc",
+                            description = "Sort field and direction (e.g. id,asc)",
+                            example = "id,asc",
                             schema = @Schema(type = "string")
                     )
             },
@@ -169,7 +169,7 @@ public class BookController {
     @GetMapping("/search")
     public ResponseEntity<BookPageResponseDto> searchByKeywords(
             @RequestParam(required = false, defaultValue = "") String keyword,
-            @PageableDefault(size = 20, direction = Sort.Direction.DESC) @ParameterObject Pageable pageable) {
+            @PageableDefault(direction = Sort.Direction.ASC) @ParameterObject Pageable pageable) {
 
         return ResponseEntity.ok(bookService.searchByKeywords(keyword, pageable));
     }
@@ -179,7 +179,7 @@ public class BookController {
             parameters = {
                     @Parameter(name = "page", description = "Page number (zero-based)", example = "0"),
                     @Parameter(name = "size", description = "Page size", example = "10"),
-                    @Parameter(name = "sort", description = "Sort field and direction", example = "title,asc")
+                    @Parameter(name = "sort", description = "Sort field and direction", example = "id,asc")
             },
             responses = {
                     @ApiResponse(
@@ -195,7 +195,7 @@ public class BookController {
             }
     )
     @GetMapping("/category/{categoryId}")
-    public ResponseEntity<BookPageResponseDto> getByCategoryId(@PathVariable Long categoryId,@PageableDefault(size = 20, direction = Sort.Direction.DESC) @ParameterObject Pageable pageable) {
+    public ResponseEntity<BookPageResponseDto> getByCategoryId(@PathVariable Long categoryId,@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(bookService.getByCategoryId(categoryId, pageable));
     }
 
@@ -203,8 +203,8 @@ public class BookController {
             summary = "Get books by author ID",
             parameters = {
                     @Parameter(name = "page", description = "Page number (zero-based)", example = "0", schema = @Schema(type = "integer", defaultValue = "0")),
-                    @Parameter(name = "size", description = "Page size", example = "20", schema = @Schema(type = "integer", defaultValue = "20")),
-                    @Parameter(name = "sort", description = "Sort field and direction (e.g. title,asc)", example = "title,asc", schema = @Schema(type = "string"))
+                    @Parameter(name = "size", description = "Page size", example = "10", schema = @Schema(type = "integer", defaultValue = "10")),
+                    @Parameter(name = "sort", description = "Sort field and direction (e.g. id,asc)", example = "id,asc", schema = @Schema(type = "string"))
             },
             responses = {
                     @ApiResponse(
@@ -228,8 +228,8 @@ public class BookController {
             summary = "Get available books",
             parameters = {
                     @Parameter(name = "page", description = "Page number (zero-based)", example = "0", schema = @Schema(type = "integer", defaultValue = "0")),
-                    @Parameter(name = "size", description = "Page size", example = "20", schema = @Schema(type = "integer", defaultValue = "20")),
-                    @Parameter(name = "sort", description = "Sort field and direction (e.g. title,asc)", example = "title,asc", schema = @Schema(type = "string"))
+                    @Parameter(name = "size", description = "Page size", example = "10", schema = @Schema(type = "integer", defaultValue = "10")),
+                    @Parameter(name = "sort", description = "Sort field and direction (e.g. id,asc)", example = "id,asc", schema = @Schema(type = "string"))
             },
             responses = {
                     @ApiResponse(
@@ -248,8 +248,8 @@ public class BookController {
             summary = "Get unavailable books",
             parameters = {
                     @Parameter(name = "page", description = "Page number (zero-based)", example = "0", schema = @Schema(type = "integer", defaultValue = "0")),
-                    @Parameter(name = "size", description = "Page size", example = "20", schema = @Schema(type = "integer", defaultValue = "20")),
-                    @Parameter(name = "sort", description = "Sort field and direction (e.g. title,asc)", example = "title,asc", schema = @Schema(type = "string"))
+                    @Parameter(name = "size", description = "Page size", example = "10", schema = @Schema(type = "integer", defaultValue = "10")),
+                    @Parameter(name = "sort", description = "Sort field and direction (e.g. id,asc)", example = "id,asc", schema = @Schema(type = "string"))
             },
             responses = {
                     @ApiResponse(
@@ -269,8 +269,8 @@ public class BookController {
             parameters = {
                     @Parameter(name = "genre", description = "Book genre to filter by", required = true, example = "Fantasy"),
                     @Parameter(name = "page", description = "Page number (zero-based)", example = "0", schema = @Schema(type = "integer", defaultValue = "0")),
-                    @Parameter(name = "size", description = "Page size", example = "20", schema = @Schema(type = "integer", defaultValue = "20")),
-                    @Parameter(name = "sort", description = "Sort field and direction (e.g. title,asc)", example = "title,asc", schema = @Schema(type = "string"))
+                    @Parameter(name = "size", description = "Page size", example = "10", schema = @Schema(type = "integer", defaultValue = "10")),
+                    @Parameter(name = "sort", description = "Sort field and direction (e.g. id,asc)", example = "id,asc", schema = @Schema(type = "string"))
             },
             responses = {
                     @ApiResponse(
@@ -296,7 +296,7 @@ public class BookController {
                     @Parameter(name = "name", description = "Author name to search for", required = true, example = "J.K. Rowling"),
                     @Parameter(name = "page", description = "Page number (zero-based)", example = "0", schema = @Schema(type = "integer", defaultValue = "0")),
                     @Parameter(name = "size", description = "Page size", example = "20", schema = @Schema(type = "integer", defaultValue = "20")),
-                    @Parameter(name = "sort", description = "Sort field and direction (e.g. title,asc)", example = "title,asc", schema = @Schema(type = "string"))
+                    @Parameter(name = "sort", description = "Sort field and direction (e.g. id,asc)", example = "id,asc", schema = @Schema(type = "string"))
             },
             responses = {
                     @ApiResponse(
