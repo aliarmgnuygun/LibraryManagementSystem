@@ -25,6 +25,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -73,6 +74,42 @@ public class JwtAuthenticationFilterTest {
             request.setServletPath("/api/auth/login");
             filter.doFilterInternal(request,response,chain);
             assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+        }
+
+        @Test
+        @DisplayName("Should skip filter if Authorization header is malformed")
+        void shouldSkipWhenAuthorizationHeaderIsInvalidFormat() throws Exception {
+            request.addHeader("Authorization", "Token abcdefg");
+
+            filter.doFilterInternal(request, response, chain);
+
+            assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+        }
+
+        @Test
+        @DisplayName("Should skip authentication if extracted username is null")
+        void shouldSkipWhenExtractedUsernameIsNull() throws Exception {
+            request.addHeader("Authorization", "Bearer faketoken");
+            given(jwtService.extractUsername("faketoken")).willReturn(null);
+
+            filter.doFilterInternal(request, response, chain);
+
+            assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+        }
+
+        @Test
+        @DisplayName("Should skip authentication if context is already authenticated")
+        void shouldSkipWhenAlreadyAuthenticated() throws Exception {
+            request.addHeader("Authorization", "Bearer token");
+            given(jwtService.extractUsername("token")).willReturn("user@mail.com");
+
+            SecurityContextHolder.getContext().setAuthentication(
+                    new UsernamePasswordAuthenticationToken("user@mail.com", null, List.of())
+            );
+
+            filter.doFilterInternal(request, response, chain);
+
+            assertThat(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).isEqualTo("user@mail.com");
         }
     }
 
