@@ -21,6 +21,11 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+/**
+ * Integration tests for AuthorService.
+ * Uses H2 in-memory databases with test profile.
+ */
+
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
