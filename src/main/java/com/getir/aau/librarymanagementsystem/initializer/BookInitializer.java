@@ -3,6 +3,7 @@ package com.getir.aau.librarymanagementsystem.initializer;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.getir.aau.librarymanagementsystem.model.dto.request.BookRequestDto;
+import com.getir.aau.librarymanagementsystem.repository.BookRepository;
 import com.getir.aau.librarymanagementsystem.service.BookService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,10 +22,16 @@ public class BookInitializer implements CommandLineRunner {
 
     private final ObjectMapper objectMapper;
     private final BookService bookService;
+    private final BookRepository bookRepository;
 
     @Override
     public void run(String... args) throws Exception {
-        initBooksFromJson();
+        if (bookRepository.count() == 0) {
+            log.info("Initializing books from JSON file...");
+            initBooksFromJson();
+        } else {
+            log.info("Books already exist in the database. Skipping initialization.");
+        }
     }
 
     private void initBooksFromJson() throws IOException {
@@ -38,10 +45,10 @@ public class BookInitializer implements CommandLineRunner {
                 bookService.create(dto);
                 created++;
             } catch (Exception e) {
-                log.warn("❌ Failed to create book: {} - {}", dto.title(), e.getMessage());
+                log.warn("Failed to create book: {} - {}", dto.title(), e.getMessage());
             }
         }
 
-        log.info("✅ Book initialization completed. Created {} books.", created);
+        log.info("Book initialization completed. Created {} books.", created);
     }
 }

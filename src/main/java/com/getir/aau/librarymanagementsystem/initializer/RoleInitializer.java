@@ -4,9 +4,11 @@ import com.getir.aau.librarymanagementsystem.model.entity.ERole;
 import com.getir.aau.librarymanagementsystem.model.entity.Role;
 import com.getir.aau.librarymanagementsystem.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class RoleInitializer implements CommandLineRunner {
@@ -15,7 +17,12 @@ public class RoleInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        initRoles();
+        if (roleRepository.count() == 0) {
+            log.info("Initializing roles...");
+            initRoles();
+        }else {
+            log.info("Roles already exist in the database. Skipping initialization.");
+        }
     }
 
     private void initRoles() {
