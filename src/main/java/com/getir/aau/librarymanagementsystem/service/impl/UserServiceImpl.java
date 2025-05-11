@@ -2,8 +2,8 @@ package com.getir.aau.librarymanagementsystem.service.impl;
 
 import com.getir.aau.librarymanagementsystem.exception.ResourceAlreadyExistsException;
 import com.getir.aau.librarymanagementsystem.exception.ResourceNotFoundException;
-import com.getir.aau.librarymanagementsystem.model.dto.response.UserResponseDto;
 import com.getir.aau.librarymanagementsystem.model.dto.request.UserUpdateRequestDto;
+import com.getir.aau.librarymanagementsystem.model.dto.response.UserResponseDto;
 import com.getir.aau.librarymanagementsystem.model.entity.ERole;
 import com.getir.aau.librarymanagementsystem.model.entity.Role;
 import com.getir.aau.librarymanagementsystem.model.entity.User;
@@ -15,7 +15,6 @@ import com.getir.aau.librarymanagementsystem.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,7 +28,6 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
     @Override
@@ -48,7 +46,6 @@ public class UserServiceImpl implements UserService {
                 });
 
         User user = userMapper.fromRegisterRequest(dto);
-        user.setPassword(passwordEncoder.encode(dto.password()));
         user.setRole(role);
 
         userRepository.save(user);
