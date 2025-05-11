@@ -1,6 +1,8 @@
 package com.getir.aau.librarymanagementsystem.security.jwt;
 
 import com.getir.aau.librarymanagementsystem.security.CustomUserDetailsService;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
-        final String userEmail;
+        String userEmail;
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             log.debug("Missing or invalid authorization header");
@@ -48,7 +50,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         jwt = authHeader.substring(7);
-        userEmail = jwtService.extractUsername(jwt);
+
+        try {
+            userEmail = jwtService.extractUsername(jwt);
+        } catch (ExpiredJwtException e) {
+            log.warn("JWT expired: {}", e.getMessage());
+            filterChain.doFilter(request, response);
+            return;
+        } catch (JwtException e) {
+            log.warn("JWT error (invalid/malformed): {}", e.getMessage());
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);

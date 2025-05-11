@@ -2,6 +2,7 @@ package com.getir.aau.librarymanagementsystem.security.jwt;
 
 import com.getir.aau.librarymanagementsystem.model.entity.User;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -28,12 +29,7 @@ public class JwtService {
     private long refreshExpiration;
 
     public String extractUsername(String token) {
-        try {
-            return extractClaim(token, Claims::getSubject);
-        } catch (Exception e) {
-            log.warn("Invalid token: {}", e.getMessage());
-            return null;
-        }
+        return extractClaim(token, Claims::getSubject);
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -74,8 +70,17 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        try {
+            final String username = extractUsername(token);
+            return (username != null &&
+                    username.equals(userDetails.getUsername()) &&
+                    !isTokenExpired(token));
+        } catch (ExpiredJwtException e) {
+            log.warn("Token expired for user: {}", e.getClaims().getSubject());
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private boolean isTokenExpired(String token) {
