@@ -49,7 +49,7 @@ public class BorrowRecordServiceImpl implements BorrowRecordService {
                     return new ResourceNotFoundException("User", "id", dto.userId());
                 });
 
-        checkBorrowEligibility(user.getId());
+        checkUserEligibility(user);
 
         LocalDate borrowDate = LocalDate.now();
         LocalDate dueDate = borrowDate.plusDays(DEFAULT_LOAN_PERIOD_DAYS);
@@ -106,10 +106,12 @@ public class BorrowRecordServiceImpl implements BorrowRecordService {
                     return new ResourceNotFoundException("BorrowRecord", "id", id);
                 });
 
-        User currentUser = getCurrentUser();
-        if (!securityUtils.isLibrarian() && !borrowRecord.getUser().getId().equals(currentUser.getId())) {
-            log.warn("Unauthorized access attempt to record ID: {} by user ID: {}", id, currentUser.getId());
-            throw new AccessDeniedException("You are not allowed to access this record.");
+        if (!securityUtils.isLibrarian()) {
+            User currentUser = getCurrentUser();
+            if (!borrowRecord.getUser().getId().equals(currentUser.getId())) {
+                log.warn("Unauthorized access attempt to record ID: {} by user ID: {}", id, currentUser.getId());
+                throw new AccessDeniedException("You are not allowed to access this record.");
+            }
         }
 
         log.debug("Retrieved borrow record with ID: {}", id);
@@ -157,12 +159,7 @@ public class BorrowRecordServiceImpl implements BorrowRecordService {
                     return new ResourceNotFoundException("User", "id", userId);
                 });
 
-        try {
-            checkUserEligibility(user);
-        } catch (Exception e) {
-            log.debug("User ID: {} is not eligible to borrow. Reason: {}", userId, e.getMessage());
-            throw e;
-        }
+        checkUserEligibility(user);
     }
 
     @Override

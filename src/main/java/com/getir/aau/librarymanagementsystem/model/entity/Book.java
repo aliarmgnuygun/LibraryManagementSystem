@@ -55,15 +55,15 @@ public class Book {
             throw new IllegalStateException("No copies available");
         }
         numberOfCopies--;
-        if (numberOfCopies == 0) {
-            available = false;
-        }
+        updateAvailability();
     }
 
     public void returnBook() {
         numberOfCopies++;
-        if (numberOfCopies > 0) {
-            available = true;
-        }
+        updateAvailability();
+    }
+
+    public void updateAvailability() {
+        this.available = this.numberOfCopies > 0;
     }
 }
