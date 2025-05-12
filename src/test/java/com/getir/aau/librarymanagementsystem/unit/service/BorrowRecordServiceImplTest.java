@@ -205,18 +205,18 @@ class BorrowRecordServiceImplTest {
                     .user(User.builder().id(2L).build())
                     .build();
 
+            User currentUser = User.builder().id(1L).email("user@example.com").build();
+
             when(borrowRecordRepository.findById(1L)).thenReturn(Optional.of(record));
-            when(securityUtils.isLibrarian()).thenReturn(false);
-            when(securityUtils.getCurrentUserEmail()).thenReturn("user@example.com");
-            when(userRepository.findByEmail("user@example.com")).thenReturn(Optional.of(user));
+            when(securityUtils.hasRole("LIBRARIAN")).thenReturn(false);
+            when(securityUtils.getCurrentUser()).thenReturn(currentUser);
 
             assertThrows(AccessDeniedException.class,
                     () -> borrowRecordService.getById(1L));
 
             verify(borrowRecordRepository).findById(1L);
-            verify(securityUtils).isLibrarian();
-            verify(securityUtils).getCurrentUserEmail();
-            verify(userRepository).findByEmail("user@example.com");
+            verify(securityUtils).hasRole("LIBRARIAN");
+            verify(securityUtils).getCurrentUser();
         }
 
         @Test
@@ -229,14 +229,14 @@ class BorrowRecordServiceImplTest {
             BorrowRecordResponseDto expectedDto = mock(BorrowRecordResponseDto.class);
 
             when(borrowRecordRepository.findById(1L)).thenReturn(Optional.of(record));
-            when(securityUtils.isLibrarian()).thenReturn(true);
+            when(securityUtils.hasRole("LIBRARIAN")).thenReturn(true);
             when(borrowMapper.toRecordDto(record)).thenReturn(expectedDto);
 
             BorrowRecordResponseDto result = borrowRecordService.getById(1L);
 
             assertNotNull(result);
             verify(borrowRecordRepository).findById(1L);
-            verify(securityUtils).isLibrarian();
+            verify(securityUtils).hasRole("LIBRARIAN");
             verify(borrowMapper).toRecordDto(record);
         }
     }

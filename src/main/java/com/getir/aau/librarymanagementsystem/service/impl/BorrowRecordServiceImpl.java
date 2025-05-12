@@ -106,8 +106,9 @@ public class BorrowRecordServiceImpl implements BorrowRecordService {
                     return new ResourceNotFoundException("BorrowRecord", "id", id);
                 });
 
-        if (!securityUtils.isLibrarian()) {
-            User currentUser = getCurrentUser();
+        User currentUser = securityUtils.getCurrentUser();
+
+        if (!securityUtils.hasRole("LIBRARIAN")) {
             if (!borrowRecord.getUser().getId().equals(currentUser.getId())) {
                 log.warn("Unauthorized access attempt to record ID: {} by user ID: {}", id, currentUser.getId());
                 throw new AccessDeniedException("You are not allowed to access this record.");
@@ -120,8 +121,9 @@ public class BorrowRecordServiceImpl implements BorrowRecordService {
 
     @Override
     public Page<BorrowRecordResponseDto> getByUser(Long userId, Pageable pageable) {
-        User currentUser = getCurrentUser();
-        if (!securityUtils.isLibrarian() && !userId.equals(currentUser.getId())) {
+        User currentUser = securityUtils.getCurrentUser();
+
+        if (!securityUtils.hasRole("LIBRARIAN") && !userId.equals(currentUser.getId())) {
             throw new AccessDeniedException("You cannot view other users' borrow records.");
         }
 
@@ -177,8 +179,8 @@ public class BorrowRecordServiceImpl implements BorrowRecordService {
 
     @Override
     public List<BorrowRecordResponseDto> getActiveRecordsByUser(Long userId) {
-        User currentUser = getCurrentUser();
-        if (!securityUtils.isLibrarian() && !userId.equals(currentUser.getId())) {
+        User currentUser = securityUtils.getCurrentUser();
+        if (!securityUtils.hasRole("LIBRARIAN") && !userId.equals(currentUser.getId())) {
             throw new AccessDeniedException("You cannot view active records of other users.");
         }
 
@@ -219,10 +221,5 @@ public class BorrowRecordServiceImpl implements BorrowRecordService {
         }
 
         log.debug("User ID: {} is eligible to borrow books", user.getId());
-    }
-    private User getCurrentUser() {
-        String email = securityUtils.getCurrentUserEmail();
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
     }
 }

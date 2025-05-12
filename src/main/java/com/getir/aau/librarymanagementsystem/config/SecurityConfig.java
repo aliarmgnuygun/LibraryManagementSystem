@@ -83,6 +83,16 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/borrow-records/user/{userId}").hasAnyRole("USER", "LIBRARIAN")
                         .requestMatchers(HttpMethod.GET, "/api/borrow-records/user/{userId}/active").hasAnyRole("USER", "LIBRARIAN")
 
+
+                        // Borrow Item Management
+                        .requestMatchers(HttpMethod.PUT, "/api/borrow-items/{itemId}/return").hasRole("LIBRARIAN")
+                        .requestMatchers(HttpMethod.GET, "/api/borrow-items/user/{userId}").hasAnyRole("USER", "LIBRARIAN")
+                        .requestMatchers(HttpMethod.GET, "/api/borrow-items/user/{userId}/count-active").hasAnyRole("USER", "LIBRARIAN")
+                        .requestMatchers(HttpMethod.GET, "/api/borrow-items/user/{userId}/exist-overdue").hasAnyRole("USER", "LIBRARIAN")
+                        .requestMatchers(HttpMethod.GET, "/api/borrow-items/overdue").hasRole("LIBRARIAN")
+                        .requestMatchers(HttpMethod.GET, "/api/borrow-items/date-range").hasRole("LIBRARIAN")
+                        .requestMatchers(HttpMethod.GET, "/api/borrow-items/book/{bookId}").hasRole("LIBRARIAN")
+
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider)

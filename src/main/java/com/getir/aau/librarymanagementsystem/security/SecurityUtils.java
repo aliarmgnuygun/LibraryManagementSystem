@@ -1,5 +1,11 @@
 package com.getir.aau.librarymanagementsystem.security;
 
+import com.getir.aau.librarymanagementsystem.exception.ResourceNotFoundException;
+import com.getir.aau.librarymanagementsystem.model.entity.User;
+import com.getir.aau.librarymanagementsystem.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -7,7 +13,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
+@Slf4j
 public class SecurityUtils {
+
+    private final UserRepository userRepository;
 
     /**
      * Get the current authenticated user email
@@ -30,10 +40,18 @@ public class SecurityUtils {
     }
 
     /**
-     * Check if the current user has a LIBRARIAN role
-     * @return true if the user is a librarian
+     * Get the current authenticated User object from the database
      */
-    public boolean isLibrarian() {
+    public User getCurrentUser() {
+        String email = getCurrentUserEmail();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+    }
+
+    /**
+     * Check if the current user has a specific role
+     */
+    public boolean hasRole(String roleName) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             return false;
@@ -41,6 +59,16 @@ public class SecurityUtils {
 
         return authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .anyMatch(authority -> authority.equals("ROLE_LIBRARIAN"));
+                .anyMatch(authority -> authority.equals("ROLE_" + roleName));
+    }
+
+    public void checkAccessPermissionForUser(Long targetUserId) {
+        User currentUser = getCurrentUser();
+        boolean isLibrarian = hasRole("LIBRARIAN");
+
+        if (!isLibrarian && !currentUser.getId().equals(targetUserId)) {
+            log.warn("Unauthorized access attempt by user ID: {} to user ID: {}", currentUser.getId(), targetUserId);
+            throw new AccessDeniedException("You are not allowed to access this resource.");
+        }
     }
 }
