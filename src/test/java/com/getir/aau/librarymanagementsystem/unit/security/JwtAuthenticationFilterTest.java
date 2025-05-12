@@ -3,6 +3,8 @@ package com.getir.aau.librarymanagementsystem.unit.security;
 import com.getir.aau.librarymanagementsystem.security.CustomUserDetailsService;
 import com.getir.aau.librarymanagementsystem.security.jwt.JwtAuthenticationFilter;
 import com.getir.aau.librarymanagementsystem.security.jwt.JwtService;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +15,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockFilterChain;
@@ -47,10 +48,10 @@ public class JwtAuthenticationFilterTest {
             super.doFilterInternal(request, response, filterChain);
         }
     }
+
     @Mock private JwtService jwtService;
     @Mock private CustomUserDetailsService userDetailsService;
 
-    @InjectMocks
     private TestableJwtAuthenticationFilter filter;
 
     private MockHttpServletRequest request;
@@ -59,6 +60,7 @@ public class JwtAuthenticationFilterTest {
 
     @BeforeEach
     void init() {
+        filter = new TestableJwtAuthenticationFilter(jwtService, userDetailsService);
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         chain = new MockFilterChain();
@@ -72,7 +74,7 @@ public class JwtAuthenticationFilterTest {
         @DisplayName("Should skip authentication for auth endpoints")
         void shouldSkipAuth() throws Exception {
             request.setServletPath("/api/auth/login");
-            filter.doFilterInternal(request,response,chain);
+            filter.doFilterInternal(request, response, chain);
             assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
         }
 
@@ -89,8 +91,8 @@ public class JwtAuthenticationFilterTest {
         @Test
         @DisplayName("Should skip authentication if extracted username is null")
         void shouldSkipWhenExtractedUsernameIsNull() throws Exception {
-            request.addHeader("Authorization", "Bearer faketoken");
-            given(jwtService.extractUsername("faketoken")).willReturn(null);
+            request.addHeader("Authorization", "Bearer fakeToken");
+            given(jwtService.extractUsername("fakeToken")).willReturn(null);
 
             filter.doFilterInternal(request, response, chain);
 
@@ -113,42 +115,111 @@ public class JwtAuthenticationFilterTest {
         }
     }
 
-    @Nested @DisplayName("Valid token handling")
+    @Nested
+    @DisplayName("Valid token handling")
     class ValidTokenTests {
-        @Test @DisplayName("Should set authentication when token valid")
+        @Test
+        @DisplayName("Should set authentication when token valid")
         void shouldAuthenticateWithValidToken() throws Exception {
             String jwt = "token";
-            request.addHeader("Authorization","Bearer "+jwt);
+            request.addHeader("Authorization", "Bearer " + jwt);
             UserDetails details = User.withUsername("user@mail.com").password("pw").roles("USER").build();
 
             given(jwtService.extractUsername(jwt)).willReturn("user@mail.com");
             given(userDetailsService.loadUserByUsername("user@mail.com")).willReturn(details);
-            given(jwtService.isTokenValid(jwt,details)).willReturn(true);
+            given(jwtService.isTokenValid(jwt, details)).willReturn(true);
 
-            filter.doFilterInternal(request,response,chain);
+            filter.doFilterInternal(request, response, chain);
 
             UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
             assertThat(auth).isNotNull();
             assertThat(auth.getPrincipal()).isEqualTo(details);
         }
+
+        @Test
+        @DisplayName("Should set authorities and details when authenticating")
+        void shouldSetAuthoritiesAndDetailsWhenAuthenticating() throws Exception {
+            // Given
+            String jwt = "token";
+            request.addHeader("Authorization", "Bearer " + jwt);
+            UserDetails details = User.withUsername("user@mail.com")
+                    .password("pw")
+                    .roles("USER", "ADMIN")
+                    .build();
+
+            given(jwtService.extractUsername(jwt)).willReturn("user@mail.com");
+            given(userDetailsService.loadUserByUsername("user@mail.com")).willReturn(details);
+            given(jwtService.isTokenValid(jwt, details)).willReturn(true);
+
+            // When
+            filter.doFilterInternal(request, response, chain);
+
+            // Then
+            UsernamePasswordAuthenticationToken auth =
+                    (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+
+            assertThat(auth).isNotNull();
+            assertThat(auth.getAuthorities()).hasSize(2);
+            assertThat(auth.getAuthorities())
+                    .extracting("authority")
+                    .containsExactlyInAnyOrder("ROLE_USER", "ROLE_ADMIN");
+            assertThat(auth.getDetails()).isNotNull();
+        }
     }
 
-    @Nested @DisplayName("Invalid / missing header")
-    class InvalidHeaderTests {
-        @Test @DisplayName("Should continue filter chain when header missing")
-        void shouldContinueWhenHeaderMissing() throws Exception {
-            filter.doFilterInternal(request,response,chain);
+    @Nested
+    @DisplayName("JWT Exception handling")
+    class JwtExceptionTests {
+        @Test
+        @DisplayName("Should skip when JWT token is expired")
+        void shouldSkipWhenTokenIsExpired() throws Exception {
+            // Given
+            request.addHeader("Authorization", "Bearer expiredToken");
+            given(jwtService.extractUsername("expiredToken"))
+                    .willThrow(new ExpiredJwtException(null, null, "JWT expired"));
+
+            // When
+            filter.doFilterInternal(request, response, chain);
+
+            // Then
             assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
         }
 
-        @Test @DisplayName("Should continue when token invalid")
+        @Test
+        @DisplayName("Should skip when JWT token is malformed")
+        void shouldSkipWhenTokenIsMalformed() throws Exception {
+            // Given
+            request.addHeader("Authorization", "Bearer badToken");
+            given(jwtService.extractUsername("badToken"))
+                    .willThrow(new JwtException("Invalid token"));
+
+            // When
+            filter.doFilterInternal(request, response, chain);
+
+            // Then
+            assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("Invalid / missing header")
+    class InvalidHeaderTests {
+        @Test
+        @DisplayName("Should continue filter chain when header missing")
+        void shouldContinueWhenHeaderMissing() throws Exception {
+            filter.doFilterInternal(request, response, chain);
+            assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+        }
+
+        @Test
+        @DisplayName("Should continue when token invalid")
         void shouldContinueWhenTokenInvalid() throws Exception {
-            request.addHeader("Authorization","Bearer bad");
+            request.addHeader("Authorization", "Bearer bad");
             given(jwtService.extractUsername("bad")).willReturn("user@mail.com");
             given(userDetailsService.loadUserByUsername(anyString())).willReturn(User.withUsername("user@mail.com").password("pw").roles("USER").build());
             given(jwtService.isTokenValid(eq("bad"), any())).willReturn(false);
 
-            filter.doFilterInternal(request,response,chain);
+            filter.doFilterInternal(request, response, chain);
             assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
         }
     }
