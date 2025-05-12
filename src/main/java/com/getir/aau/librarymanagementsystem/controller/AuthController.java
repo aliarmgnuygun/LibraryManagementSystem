@@ -46,7 +46,7 @@ public class AuthController {
     })
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDto> login(@Valid @RequestBody AuthRequestDto request) {
-        return ResponseEntity.ok(authService.authenticate(request));
+        return ResponseEntity.ok(authService.login(request));
     }
 
     @Operation(summary = "Logout user (revoke current token)", responses = {
