@@ -56,9 +56,7 @@ public class BorrowItemServiceImpl implements BorrowItemService {
         }
 
         borrowItem.markAsReturned();
-
         Book book = borrowItem.getBook();
-        book.returnBook();
         bookRepository.save(book);
 
         borrowItemRepository.save(borrowItem);
@@ -124,20 +122,20 @@ public class BorrowItemServiceImpl implements BorrowItemService {
         return new BorrowItemPageResponseDto(page.getContent(), page.getTotalPages(), page.getTotalElements());
     }
 
-        @Override
-        public List<BorrowItemResponseDto> getActiveItemsByUser(Long userId) {
-            if (!userRepository.existsById(userId)) {
-                log.warn("Request failed: User ID {} does not exist in database", userId);
-                throw new IllegalArgumentException("User not found with id: " + userId);
-            }
-
-            securityUtils.checkAccessPermissionForUser(userId);
-
-            List<BorrowItem> activeItems = borrowItemRepository.findByUserIdAndReturnedFalse(userId);
-            log.debug("Found {} active borrow items for user ID: {}", activeItems.size(), userId);
-
-            return borrowMapper.toItemDtoList(activeItems);
+    @Override
+    public List<BorrowItemResponseDto> getActiveItemsByUser(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            log.warn("Request failed: User ID {} does not exist in database", userId);
+            throw new IllegalArgumentException("User not found with id: " + userId);
         }
+
+        securityUtils.checkAccessPermissionForUser(userId);
+
+        List<BorrowItem> activeItems = borrowItemRepository.findByUserIdAndReturnedFalse(userId);
+        log.debug("Found {} active borrow items for user ID: {}", activeItems.size(), userId);
+
+        return borrowMapper.toItemDtoList(activeItems);
+    }
 
     @Override
     public boolean existsOverdueItemsByUserId(Long userId) {
