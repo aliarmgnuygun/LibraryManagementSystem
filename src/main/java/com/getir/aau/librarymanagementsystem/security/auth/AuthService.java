@@ -1,8 +1,6 @@
 package com.getir.aau.librarymanagementsystem.security.auth;
 
-import com.getir.aau.librarymanagementsystem.security.auth.dto.AuthRequestDto;
-import com.getir.aau.librarymanagementsystem.security.auth.dto.AuthResponseDto;
-import com.getir.aau.librarymanagementsystem.security.auth.dto.RegisterRequestDto;
+import com.getir.aau.librarymanagementsystem.security.auth.dto.*;
 
 public interface AuthService {
 
@@ -11,4 +9,6 @@ public interface AuthService {
     AuthResponseDto login(AuthRequestDto request);
 
     void logout(String token);
+
+    void changePassword(ChangePasswordRequestDto request);
 }

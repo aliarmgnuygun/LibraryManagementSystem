@@ -53,6 +53,8 @@ public class SecurityConfig {
                                 "/error",
                                 "/api/auth/**"
                         ).permitAll()
+                        // Authentication
+                        .requestMatchers(HttpMethod.POST, "/api/auth/change-password").hasAnyRole("USER", "LIBRARIAN")
                         .requestMatchers("/api/auth/**").permitAll()
 
                         // Book Management

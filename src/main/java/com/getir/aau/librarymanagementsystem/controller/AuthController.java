@@ -4,6 +4,7 @@ import com.getir.aau.librarymanagementsystem.security.auth.AuthService;
 import com.getir.aau.librarymanagementsystem.security.auth.dto.AuthRequestDto;
 import com.getir.aau.librarymanagementsystem.security.auth.dto.AuthResponseDto;
 import com.getir.aau.librarymanagementsystem.security.auth.dto.RegisterRequestDto;
+import com.getir.aau.librarymanagementsystem.security.auth.dto.ChangePasswordRequestDto;
 import com.getir.aau.librarymanagementsystem.security.token.TokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -79,5 +80,17 @@ public class AuthController {
 
         String refreshToken = authHeader.substring(7);
         return ResponseEntity.ok(tokenService.refreshToken((refreshToken)));
+    }
+
+    @Operation(summary = "Change password", responses = {
+            @ApiResponse(responseCode = "200", description = "Password changed successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input - Password validation failed or passwords don't match"),
+            @ApiResponse(responseCode = "404", description = "User not found with given email")
+
+    })
+    @PostMapping("/change-password")
+    public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequestDto request) {
+        authService.changePassword(request);
+        return ResponseEntity.ok().build();
     }
 }

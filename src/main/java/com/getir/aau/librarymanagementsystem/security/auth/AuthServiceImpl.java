@@ -1,5 +1,6 @@
 package com.getir.aau.librarymanagementsystem.security.auth;
 
+import com.getir.aau.librarymanagementsystem.exception.ResourceNotFoundException;
 import com.getir.aau.librarymanagementsystem.model.entity.ERole;
 import com.getir.aau.librarymanagementsystem.model.entity.Role;
 import com.getir.aau.librarymanagementsystem.model.entity.User;
@@ -8,6 +9,7 @@ import com.getir.aau.librarymanagementsystem.repository.UserRepository;
 import com.getir.aau.librarymanagementsystem.security.auth.dto.AuthRequestDto;
 import com.getir.aau.librarymanagementsystem.security.auth.dto.AuthResponseDto;
 import com.getir.aau.librarymanagementsystem.security.auth.dto.RegisterRequestDto;
+import com.getir.aau.librarymanagementsystem.security.auth.dto.ChangePasswordRequestDto;
 import com.getir.aau.librarymanagementsystem.security.jwt.JwtService;
 import com.getir.aau.librarymanagementsystem.security.token.TokenService;
 import lombok.RequiredArgsConstructor;
@@ -94,5 +96,20 @@ public class AuthServiceImpl implements AuthService {
             SecurityContextHolder.clearContext();
             log.info("Token revoked successfully during logout: {}", token);
         });
+    }
+
+    @Override
+    public void changePassword(ChangePasswordRequestDto request) {
+        if (!request.newPassword().equals(request.confirmPassword())) {
+            throw new IllegalArgumentException("Passwords do not match");
+        }
+
+        User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", request.email()));
+
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
+
+        log.info("Password successfully reset for user: {}", user.getEmail());
     }
 }
