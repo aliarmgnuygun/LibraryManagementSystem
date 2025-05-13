@@ -104,6 +104,10 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException("Passwords do not match");
         }
 
+        if (request.newPassword().isBlank()) {
+            throw new IllegalArgumentException("Password cannot be empty");
+        }
+
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", request.email()));
 

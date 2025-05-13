@@ -1,5 +1,6 @@
 package com.getir.aau.librarymanagementsystem.unit.security;
 
+import com.getir.aau.librarymanagementsystem.exception.ResourceNotFoundException;
 import com.getir.aau.librarymanagementsystem.model.entity.ERole;
 import com.getir.aau.librarymanagementsystem.model.entity.Role;
 import com.getir.aau.librarymanagementsystem.model.entity.User;
@@ -8,6 +9,7 @@ import com.getir.aau.librarymanagementsystem.repository.UserRepository;
 import com.getir.aau.librarymanagementsystem.security.auth.AuthServiceImpl;
 import com.getir.aau.librarymanagementsystem.security.auth.dto.AuthRequestDto;
 import com.getir.aau.librarymanagementsystem.security.auth.dto.AuthResponseDto;
+import com.getir.aau.librarymanagementsystem.security.auth.dto.ChangePasswordRequestDto;
 import com.getir.aau.librarymanagementsystem.security.auth.dto.RegisterRequestDto;
 import com.getir.aau.librarymanagementsystem.security.jwt.JwtService;
 import com.getir.aau.librarymanagementsystem.security.token.Token;
@@ -61,6 +63,7 @@ class AuthServiceImplTest {
     private static final String REFRESH_TOKEN = "refresh-token";
     private static final String EMAIL = "test@example.com";
     private static final String PASSWORD = "password";
+    private static final String NEW_PASSWORD = "newPassword123";
     private static final String ENCODED_PASSWORD = "encoded-password";
 
     @BeforeEach
@@ -250,6 +253,78 @@ class AuthServiceImplTest {
 
             // Then
             verify(tokenService, never()).save(any(Token.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("Change Password Method Tests")
+    class ChangePasswordTests {
+
+        @Test
+        @DisplayName("Should change password successfully when passwords match")
+        void shouldChangePasswordSuccessfullyWhenPasswordsMatch () {
+            ChangePasswordRequestDto request = new ChangePasswordRequestDto(
+                    EMAIL, NEW_PASSWORD, NEW_PASSWORD);
+
+            User user = User.builder()
+                    .email(EMAIL)
+                    .password("oldPassword")
+                    .build();
+
+            when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(user));
+            when(passwordEncoder.encode(NEW_PASSWORD)).thenReturn(ENCODED_PASSWORD);
+
+            authService.changePassword(request);
+
+            assertEquals(ENCODED_PASSWORD, user.getPassword());
+            verify(userRepository).save(user);
+        }
+
+        @Test
+        void shouldThrowExceptionWhenPasswordsDoNotMatch() {
+            ChangePasswordRequestDto request = new ChangePasswordRequestDto(
+                    EMAIL, "NewPassword123", "DifferentPassword123");
+
+            IllegalArgumentException exception = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> authService.changePassword(request)
+            );
+
+            assertEquals("Passwords do not match", exception.getMessage());
+            verify(userRepository, never()).findByEmail(anyString());
+            verify(userRepository, never()).save(any(User.class));
+        }
+
+        @Test
+        void shouldThrowResourceNotFoundExceptionWhenUserNotFound() {
+            String email = "nonexistent@gmail.com";
+            ChangePasswordRequestDto request = new ChangePasswordRequestDto(
+                    email, NEW_PASSWORD, NEW_PASSWORD);
+
+            when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+            assertThrows(
+                    ResourceNotFoundException.class,
+                    () -> authService.changePassword(request)
+            );
+
+            verify(userRepository).findByEmail(email);
+            verify(passwordEncoder, never()).encode(anyString());
+        }
+
+        @Test
+        void shouldBeValidatedWithEmptyPassword() {
+            ChangePasswordRequestDto request = new ChangePasswordRequestDto(
+                    EMAIL, "", "");
+
+            assertThrows(
+                    IllegalArgumentException.class,
+                    () -> authService.changePassword(request),
+                    "Password cannot be empty"
+            );
+
+            verifyNoInteractions(userRepository);
+            verifyNoInteractions(passwordEncoder);
         }
     }
 }
