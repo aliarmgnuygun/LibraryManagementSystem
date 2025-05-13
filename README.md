@@ -108,6 +108,28 @@ library-management-system/
 ├── 📄 pom.xml
 └── 📄 README.md
 ```
+### 🧱 Project Architecture & Code Quality
+
+To ensure scalability, maintainability, and clean structure, this project is built on a **layered (multi-tier) architecture**, with a strong focus on modern development standards:
+
+### ✅ Key Practices & Principles
+
+- 🧠 **Rich Domain Model** is adopted: domain entities encapsulate both data and relevant behavior (e.g., validation, business rules), rather than being just anemic data holders.
+- 📦 **Record-based DTOs** (`record` keyword in Java 16+) are used for immutable, concise data transport with built-in `equals`, `hashCode`, and `toString`.
+- 🔁 **Builder Pattern** is used in entity creation to promote immutability and readability (e.g., `User`, `Book`).
+- 🧼 **Clean Code** principles are followed: meaningful naming, modular structure, low coupling, high cohesion.
+- 🔐 **SOLID Principles** are respected:
+  - *Single Responsibility* in services and controllers
+  - *Open/Closed* via interface-driven design
+  - *Liskov Substitution* via proper abstraction
+  - *Interface Segregation* and *Dependency Inversion* via injected services and interfaces
+- ❗ **Global Exception Handling** via `@ControllerAdvice` with custom exceptions:
+  - `ResourceNotFoundException`
+  - `ResourceAlreadyExistsException`
+- 🛡️ **Validation** is enforced using Jakarta Bean Validation annotations (`@Valid`, `@NotBlank`, `@Email`, etc.) at both controller and DTO levels.
+- 🧪 **Best Practices** were implemented by studying official documentation, industry standards, and open-source architectures.
+
+This results in a **robust, maintainable, testable, and production-ready** application structure.
 
 ## ER Diagram
 
@@ -163,6 +185,17 @@ Enumerates the available roles: `ROLE_USER`, `ROLE_LIBRARIAN`. Used in the `Role
 Represents `access` and `refresh tokens` assigned to users. Each token has a unique value and is typed as `BEARER`. Tokens can be `revoked` or `expired`. This structure enables multi-session management and helps track the user's active authenticated sessions. Each token is linked to a single user.
 
 ## Key Features
+
+### 🧪 Default Users
+
+The following default users are automatically created for testing purposes:
+
+| Role       | Email                | Password     |
+|------------|----------------------|--------------|
+| Librarian  | librarian@gmail.com  | Password123  |
+| User       | user@gmail.com       | Password123  |
+
+🔒 **Note:** All default users share the same password: `Password123`. You can change it after logging in if needed.
 
 ### 📚 Book Management
 
@@ -247,6 +280,7 @@ This structured flow ensures data integrity and accurate tracking of library ope
 | POST   | `/api/auth/logout`   | Logout user (revoke current token)               | Public            |
 | POST   | `/api/auth/refresh`  | Refresh access token using a valid refresh token | Public            |
 | POST   | `/api/auth/register` | Register a new user                              | Public            |
+| POST   | `/api/auth/change-password` | Change user password                             | USER, LIBRARIAN   |
 
 ### 👤 Author Management
 
@@ -336,6 +370,7 @@ Authentication and authorization are implemented using Spring Security and JWT. 
 * Access tokens expire in 1 day
 * Refresh tokens expire in 7 days
 * Role-based authorization with two roles: USER and LIBRARIAN
+* Change password functionality for users and librarians
 
 ## Installation and Running
 
@@ -471,8 +506,9 @@ target/site/jacoco/index.html
 
 ## Postman Collection
 
-A Postman collection is provided for testing the API endpoints. The collection file can be found at `link` in the project's root directory.
-
+A Postman collection is provided for testing the API endpoints. The collection file can be found at [Postman Collection](https://universal-moon-471224.postman.co/workspace/getir~dfe96672-be35-4e09-8473-6e523bb2df58/collection/22551822-113eeea0-59e7-4b0a-967b-d8c855e3fa19?action=share&creator=22551822&active-environment=22551822-7ca2f1f0-ea3e-45be-a3d8-55bda44c030e) or [postman_collection.json](https://github.com/user-attachments/files/20196648/postman_collection.json)
+ in the project's root directory.
+ 
 ### Included Features
 - 🔐 **Authentication**: Register, login, logout, refresh token
 - 📚 **Books**: Create, update, delete, search, and list books
@@ -488,18 +524,18 @@ The collection uses a Postman environment with variables such as:
 ### Authorization Script (Pre-request)
 A JavaScript snippet is included to automatically save the access token:
 ```javascript
-pm.environment.set("token", pm.response.json().accessToken);
+pm.environment.set("token", pm.response.json().refresh_token);
 ```
 
 ## Screenshots
 
 #### 📊 Swagger API Documentation
 
-![Swagger API Documentation](https://github.com/user-attachments/assets/0c2cd5f6-9ddb-477c-ac0c-d7ebc7fd4d28)
+![Swagger API Documentation](https://github.com/user-attachments/assets/3853a1b1-d6cc-4d54-ae2e-a82e0324efcb)
 
 #### 📈 Test Coverage (Jacoco)
 
-![TestCoverage](https://github.com/user-attachments/assets/308c1cdd-22b8-4342-bb9c-dddfd423df50)
+![TestCoverageResult](https://github.com/user-attachments/assets/9c036515-4877-41c1-812b-7447dabc83b0)
 
 ## License
 
