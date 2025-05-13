@@ -15,6 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.time.LocalDate;
@@ -133,20 +135,71 @@ class BorrowRecordServiceImplTest {
     }
 
     @Nested
-    class EligibilityTests {
+    class CheckUserEligibilityTests {
+        @Test
+        @DisplayName("Should throw when user is not a regular user")
+        void shouldThrowWhenUserIsNotRegularUser() {
+            User librarian = User.builder()
+                    .id(2L)
+                    .role(new Role(2L, ERole.ROLE_LIBRARIAN, "ROLE_LIBRARIAN"))
+                    .build();
+
+            when(userRepository.findById(librarian.getId())).thenReturn(Optional.of(librarian));
+
+            assertThrows(AccessDeniedException.class,
+                    () -> borrowRecordService.borrowBooks(new BorrowRecordRequestDto(librarian.getId(), List.of())));
+
+            verify(userRepository).findById(librarian.getId());
+        }
 
         @Test
-        @DisplayName("Should throw when user exceeds borrowing limit")
-        void shouldThrowWhenUserExceedsBookLimit() {
-            List<BorrowItem> borrowedItems = List.of(
-                    new BorrowItem(), new BorrowItem(),
-                    new BorrowItem(), new BorrowItem(),
-                    new BorrowItem()
+        @DisplayName("Should throw when role is not found")
+        void shouldThrowWhenRoleIsNotFound() {
+            User userWithoutRole = User.builder()
+                    .id(3L)
+                    .build();
+
+            when(userRepository.findById(userWithoutRole.getId())).thenReturn(Optional.of(userWithoutRole));
+
+            assertThrows(NullPointerException.class,
+                    () -> borrowRecordService.borrowBooks(new BorrowRecordRequestDto(userWithoutRole.getId(), List.of())));
+
+            verify(userRepository).findById(userWithoutRole.getId());
+        }
+
+        @Test
+        @DisplayName("Should not throw when user has some books but under limit")
+        void shouldNotThrowWhenUserHasSomeBooksButUnderLimit() {
+            List<BorrowItem> twoActiveItems = List.of(
+                    BorrowItem.builder().dueDate(LocalDate.now().plusDays(5)).build(),
+                    BorrowItem.builder().dueDate(LocalDate.now().plusDays(3)).build()
+            );
+
+            BorrowItemRequestDto itemDto = new BorrowItemRequestDto(book.getId());
+            BorrowRecordRequestDto recordRequestDto = new BorrowRecordRequestDto(user.getId(), List.of(itemDto));
+
+            when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+            when(borrowItemRepository.findByUserIdAndReturnedFalse(user.getId())).thenReturn(twoActiveItems);
+            when(bookRepository.findById(book.getId())).thenReturn(Optional.of(book));
+            when(borrowMapper.toRecordDto(any())).thenReturn(mock(BorrowRecordResponseDto.class));
+
+            assertDoesNotThrow(() -> borrowRecordService.borrowBooks(recordRequestDto));
+
+            verify(userRepository).findById(user.getId());
+            verify(borrowItemRepository).findByUserIdAndReturnedFalse(user.getId());
+        }
+
+        @Test
+        @DisplayName("Should throw when user has exactly maximum number of books")
+        void shouldThrowWhenUserHasMaximumBooks() {
+            List<BorrowItem> fiveActiveItems = List.of(
+                    mock(BorrowItem.class), mock(BorrowItem.class),
+                    mock(BorrowItem.class), mock(BorrowItem.class),
+                    mock(BorrowItem.class)
             );
 
             when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
-            when(borrowItemRepository.findByUserIdAndReturnedFalse(user.getId()))
-                    .thenReturn(borrowedItems);
+            when(borrowItemRepository.findByUserIdAndReturnedFalse(user.getId())).thenReturn(fiveActiveItems);
 
             IllegalStateException exception = assertThrows(
                     IllegalStateException.class,
@@ -154,44 +207,105 @@ class BorrowRecordServiceImplTest {
             );
 
             assertEquals("You have reached the maximum borrowing limit.", exception.getMessage());
-
-            verify(userRepository).findById(user.getId());
-            verify(borrowItemRepository).findByUserIdAndReturnedFalse(user.getId());
         }
+    }
 
+        @Nested
+    class GetActiveRecordsByUserTests {
         @Test
-        @DisplayName("Should throw when user has overdue items")
-        void shouldThrowWhenUserHasOverdueItems() {
-            BorrowItem overdueItem = BorrowItem.builder()
-                    .dueDate(LocalDate.now().minusDays(1))
+        @DisplayName("Should return active records for user")
+        void shouldReturnActiveRecordsForUser() {
+            BorrowItem activeItem = BorrowItem.builder()
+                    .returned(false)
                     .build();
 
-            when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
-            when(borrowItemRepository.findByUserIdAndReturnedFalse(user.getId()))
-                    .thenReturn(List.of(overdueItem));
+            BorrowItem returnedItem = BorrowItem.builder()
+                    .returned(true)
+                    .build();
 
-            IllegalStateException exception = assertThrows(
-                    IllegalStateException.class,
-                    () -> borrowRecordService.checkBorrowEligibility(user.getId())
-            );
+            BorrowRecord activeRecord = BorrowRecord.builder()
+                    .id(1L)
+                    .user(user)
+                    .items(List.of(activeItem, returnedItem))
+                    .build();
 
-            assertEquals("You cannot borrow books until overdue items are returned.", exception.getMessage());
+            List<BorrowRecord> records = List.of(activeRecord);
 
-            verify(userRepository).findById(user.getId());
-            verify(borrowItemRepository).findByUserIdAndReturnedFalse(user.getId());
+            @SuppressWarnings("unchecked")
+            Page<BorrowRecord> mockPage = (Page<BorrowRecord>) mock(Page.class);
+            when(mockPage.getContent()).thenReturn(records);
+
+            when(securityUtils.getCurrentUser()).thenReturn(user);
+            when(securityUtils.hasRole("LIBRARIAN")).thenReturn(false);
+            when(userRepository.existsById(user.getId())).thenReturn(true);
+            when(borrowRecordRepository.findByUserId(eq(user.getId()), any(Pageable.class))).thenReturn(mockPage);
+            when(borrowMapper.toRecordDtoList(anyList())).thenReturn(List.of(mock(BorrowRecordResponseDto.class)));
+
+            List<BorrowRecordResponseDto> result = borrowRecordService.getActiveRecordsByUser(user.getId());
+
+            assertNotNull(result);
+            assertFalse(result.isEmpty());
+            verify(borrowMapper).toRecordDtoList(anyList());
         }
 
         @Test
-        @DisplayName("Should not throw when user is eligible to borrow books")
-        void shouldAllowBorrowingWhenEligible() {
-            when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
-            when(borrowItemRepository.findByUserIdAndReturnedFalse(user.getId()))
-                    .thenReturn(List.of());
+        @DisplayName("Should throw when unauthorized user tries to access another user's records")
+        void shouldThrowWhenUnauthorizedAccess() {
+            User otherUser = User.builder().id(2L).build();
 
-            assertDoesNotThrow(() -> borrowRecordService.checkBorrowEligibility(user.getId()));
+            when(securityUtils.getCurrentUser()).thenReturn(user);
+            when(securityUtils.hasRole("LIBRARIAN")).thenReturn(false);
 
-            verify(userRepository).findById(user.getId());
-            verify(borrowItemRepository).findByUserIdAndReturnedFalse(user.getId());
+            assertThrows(AccessDeniedException.class,
+                    () -> borrowRecordService.getActiveRecordsByUser(otherUser.getId()));
+
+            verify(securityUtils).getCurrentUser();
+            verify(securityUtils).hasRole("LIBRARIAN");
+        }
+
+        @Test
+        @DisplayName("Should throw when user does not exist")
+        void shouldThrowWhenUserDoesNotExist() {
+            Long nonExistentUserId = 999L;
+
+            when(securityUtils.getCurrentUser()).thenReturn(user);
+            when(securityUtils.hasRole("LIBRARIAN")).thenReturn(true);
+            when(userRepository.existsById(nonExistentUserId)).thenReturn(false);
+
+            assertThrows(ResourceNotFoundException.class,
+                    () -> borrowRecordService.getActiveRecordsByUser(nonExistentUserId));
+
+            verify(userRepository).existsById(nonExistentUserId);
+        }
+
+        @Test
+        @DisplayName("Should return empty list when user has no active records")
+        void shouldReturnEmptyListWhenNoActiveRecords() {
+            BorrowItem returnedItem = BorrowItem.builder()
+                    .returned(true)
+                    .build();
+
+            BorrowRecord inactiveRecord = BorrowRecord.builder()
+                    .id(1L)
+                    .user(user)
+                    .items(List.of(returnedItem))
+                    .build();
+
+            List<BorrowRecord> records = List.of(inactiveRecord);
+
+            @SuppressWarnings("unchecked")
+            Page<BorrowRecord> mockPage = (Page<BorrowRecord>) mock(Page.class);
+            when(mockPage.getContent()).thenReturn(records);
+
+            when(securityUtils.getCurrentUser()).thenReturn(user);
+            when(securityUtils.hasRole("LIBRARIAN")).thenReturn(false);
+            when(userRepository.existsById(user.getId())).thenReturn(true);
+            when(borrowRecordRepository.findByUserId(eq(user.getId()), any(Pageable.class))).thenReturn(mockPage);
+            when(borrowMapper.toRecordDtoList(eq(List.of()))).thenReturn(List.of());
+
+            List<BorrowRecordResponseDto> result = borrowRecordService.getActiveRecordsByUser(user.getId());
+
+            assertTrue(result.isEmpty());
         }
     }
 

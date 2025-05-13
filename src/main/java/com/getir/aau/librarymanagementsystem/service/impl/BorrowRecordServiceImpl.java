@@ -4,6 +4,7 @@ import com.getir.aau.librarymanagementsystem.exception.ResourceAlreadyExistsExce
 import com.getir.aau.librarymanagementsystem.exception.ResourceNotFoundException;
 import com.getir.aau.librarymanagementsystem.model.dto.request.BorrowItemRequestDto;
 import com.getir.aau.librarymanagementsystem.model.dto.request.BorrowRecordRequestDto;
+import com.getir.aau.librarymanagementsystem.model.dto.response.BorrowRecordPageResponseDto;
 import com.getir.aau.librarymanagementsystem.model.dto.response.BorrowRecordResponseDto;
 import com.getir.aau.librarymanagementsystem.model.entity.*;
 import com.getir.aau.librarymanagementsystem.model.mapper.BorrowMapper;
@@ -120,7 +121,7 @@ public class BorrowRecordServiceImpl implements BorrowRecordService {
     }
 
     @Override
-    public Page<BorrowRecordResponseDto> getByUser(Long userId, Pageable pageable) {
+    public BorrowRecordPageResponseDto getByUser(Long userId, Pageable pageable) {
         User currentUser = securityUtils.getCurrentUser();
 
         if (!securityUtils.hasRole("LIBRARIAN") && !userId.equals(currentUser.getId())) {
@@ -133,24 +134,38 @@ public class BorrowRecordServiceImpl implements BorrowRecordService {
         }
 
         log.debug("Retrieving borrow records for user ID: {}", userId);
-        return borrowRecordRepository.findByUserId(userId, pageable)
-                .map(borrowMapper::toRecordDto);
+        Page<BorrowRecord> page = borrowRecordRepository.findByUserId(userId, pageable);
+        List<BorrowRecordResponseDto> items = page.getContent().stream()
+                .map(borrowMapper::toRecordDto)
+                .toList();
+
+        return new BorrowRecordPageResponseDto(items, page.getTotalPages(), page.getTotalElements());
     }
 
     @Override
-    public Page<BorrowRecordResponseDto> getAll(Pageable pageable) {
+    public BorrowRecordPageResponseDto getAll(Pageable pageable) {
         log.debug("Retrieving all borrow records, page: {}, size: {}",
                 pageable.getPageNumber(), pageable.getPageSize());
-        return borrowRecordRepository.findAllOrderByBorrowDateDesc(pageable)
-                .map(borrowMapper::toRecordDto);
+
+        Page<BorrowRecord> page = borrowRecordRepository.findAllOrderByBorrowDateDesc(pageable);
+        List<BorrowRecordResponseDto> items = page.getContent().stream()
+                .map(borrowMapper::toRecordDto)
+                .toList();
+
+        return new BorrowRecordPageResponseDto(items, page.getTotalPages(), page.getTotalElements());
     }
 
     @Override
-    public Page<BorrowRecordResponseDto> filter(String email, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+    public BorrowRecordPageResponseDto filter(String email, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         log.info("Filtering borrow records with email: {}, startDate: {}, endDate: {}",
                 email, startDate, endDate);
-        return borrowRecordRepository.findBorrowRecordsWithFilters(email, startDate, endDate, pageable)
-                .map(borrowMapper::toRecordDto);
+
+        Page<BorrowRecord> page = borrowRecordRepository.findBorrowRecordsWithFilters(email, startDate, endDate, pageable);
+        List<BorrowRecordResponseDto> items = page.getContent().stream()
+                .map(borrowMapper::toRecordDto)
+                .toList();
+
+        return new BorrowRecordPageResponseDto(items, page.getTotalPages(), page.getTotalElements());
     }
 
     @Override

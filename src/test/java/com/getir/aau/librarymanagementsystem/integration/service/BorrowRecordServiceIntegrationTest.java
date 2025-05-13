@@ -4,6 +4,7 @@ import com.getir.aau.librarymanagementsystem.exception.ResourceAlreadyExistsExce
 import com.getir.aau.librarymanagementsystem.exception.ResourceNotFoundException;
 import com.getir.aau.librarymanagementsystem.model.dto.request.BorrowItemRequestDto;
 import com.getir.aau.librarymanagementsystem.model.dto.request.BorrowRecordRequestDto;
+import com.getir.aau.librarymanagementsystem.model.dto.response.BorrowRecordPageResponseDto;
 import com.getir.aau.librarymanagementsystem.model.dto.response.BorrowRecordResponseDto;
 import com.getir.aau.librarymanagementsystem.model.entity.*;
 import com.getir.aau.librarymanagementsystem.repository.*;
@@ -15,7 +16,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -269,8 +269,9 @@ public class BorrowRecordServiceIntegrationTest {
             // Set up authentication for the librarian
             setUpAuthentication(librarian, "ROLE_LIBRARIAN");
 
-            Page<BorrowRecordResponseDto> page = service.getByUser(regularUser.getId(), PageRequest.of(0, 5));
+            BorrowRecordPageResponseDto page = service.getByUser(regularUser.getId(), PageRequest.of(0, 5));
             assertThat(page).isNotNull();
+            assertThat(page.items()).isNotNull();
         }
 
         @Test
@@ -332,14 +333,14 @@ public class BorrowRecordServiceIntegrationTest {
 
             recordRepository.save(r);
 
-            Page<BorrowRecordResponseDto> res = service.filter(
+            BorrowRecordPageResponseDto res = service.filter(
                     regularUser.getEmail(),
                     LocalDate.now().minusDays(7),
                     LocalDate.now(),
                     PageRequest.of(0, 5)
             );
 
-            assertThat(res.getContent()).allMatch(rr -> rr.userId().equals(regularUser.getId()));
+            assertThat(res.items()).allMatch(rr -> rr.userId().equals(regularUser.getId()));
         }
 
         @Test
@@ -354,8 +355,8 @@ public class BorrowRecordServiceIntegrationTest {
                     .dueDate(LocalDate.now().plusDays(14))
                     .build());
 
-            Page<BorrowRecordResponseDto> all = service.getAll(PageRequest.of(0, 10));
-            assertThat(all.getContent()).isNotEmpty();
+            BorrowRecordPageResponseDto all = service.getAll(PageRequest.of(0, 10));
+            assertThat(all.items()).isNotEmpty();
         }
 
         @Test

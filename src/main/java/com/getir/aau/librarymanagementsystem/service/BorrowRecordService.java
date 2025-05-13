@@ -1,8 +1,8 @@
 package com.getir.aau.librarymanagementsystem.service;
 
 import com.getir.aau.librarymanagementsystem.model.dto.request.BorrowRecordRequestDto;
+import com.getir.aau.librarymanagementsystem.model.dto.response.BorrowRecordPageResponseDto;
 import com.getir.aau.librarymanagementsystem.model.dto.response.BorrowRecordResponseDto;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
@@ -13,9 +13,9 @@ public interface BorrowRecordService {
     BorrowRecordResponseDto borrowBooks(BorrowRecordRequestDto dto);
     BorrowRecordResponseDto getById(Long id);
 
-    Page<BorrowRecordResponseDto> getByUser(Long userId, Pageable pageable);
-    Page<BorrowRecordResponseDto> getAll(Pageable pageable);
-    Page<BorrowRecordResponseDto> filter(String email, LocalDate startDate, LocalDate endDate, Pageable pageable);
+    BorrowRecordPageResponseDto getByUser(Long userId, Pageable pageable);
+    BorrowRecordPageResponseDto getAll(Pageable pageable);
+    BorrowRecordPageResponseDto filter(String email, LocalDate startDate, LocalDate endDate, Pageable pageable);
 
     void checkBorrowEligibility(Long userId);
     boolean isBookAvailableForBorrowing(Long bookId);

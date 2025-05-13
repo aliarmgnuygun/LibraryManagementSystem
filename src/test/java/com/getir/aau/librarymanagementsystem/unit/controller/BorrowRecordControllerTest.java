@@ -5,6 +5,7 @@ import com.getir.aau.librarymanagementsystem.exception.ResourceNotFoundException
 import com.getir.aau.librarymanagementsystem.model.dto.request.BorrowItemRequestDto;
 import com.getir.aau.librarymanagementsystem.model.dto.request.BorrowRecordRequestDto;
 import com.getir.aau.librarymanagementsystem.model.dto.response.BorrowItemResponseDto;
+import com.getir.aau.librarymanagementsystem.model.dto.response.BorrowRecordPageResponseDto;
 import com.getir.aau.librarymanagementsystem.model.dto.response.BorrowRecordResponseDto;
 import com.getir.aau.librarymanagementsystem.service.BorrowRecordService;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,8 +16,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -131,29 +130,31 @@ public class BorrowRecordControllerTest {
         @Test
         @DisplayName("should return 200 OK with page of borrow records")
         void shouldReturnOkStatusWithPageOfBorrowRecords() {
-            Page<BorrowRecordResponseDto> page = new PageImpl<>(List.of(responseDto), pageable, 1);
+            BorrowRecordPageResponseDto page = new BorrowRecordPageResponseDto(
+                    List.of(responseDto), 1, 1);
             when(borrowRecordService.getAll(any(Pageable.class))).thenReturn(page);
 
-            ResponseEntity<Page<BorrowRecordResponseDto>> response = borrowRecordController.getAll(pageable);
+            ResponseEntity<BorrowRecordPageResponseDto> response = borrowRecordController.getAll(pageable);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
-            assertThat(response.getBody().getContent()).hasSize(1);
-            assertThat(response.getBody().getContent().getFirst().id()).isEqualTo(1L);
+            assertThat(response.getBody().items()).hasSize(1);
+            assertThat(response.getBody().items().getFirst().id()).isEqualTo(1L);
             verify(borrowRecordService).getAll(pageable);
         }
 
         @Test
         @DisplayName("should return 200 OK with empty page when no borrow records exist")
         void shouldReturnOkStatusWithEmptyPageWhenNoBorrowRecordsExist() {
-            Page<BorrowRecordResponseDto> emptyPage = new PageImpl<>(Collections.emptyList(), pageable, 0);
+            BorrowRecordPageResponseDto emptyPage = new BorrowRecordPageResponseDto(
+                    Collections.emptyList(), 0, 0);
             when(borrowRecordService.getAll(any(Pageable.class))).thenReturn(emptyPage);
 
-            ResponseEntity<Page<BorrowRecordResponseDto>> response = borrowRecordController.getAll(pageable);
+            ResponseEntity<BorrowRecordPageResponseDto> response = borrowRecordController.getAll(pageable);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
-            assertThat(response.getBody().getContent()).isEmpty();
+            assertThat(response.getBody().items()).isEmpty();
             verify(borrowRecordService).getAll(pageable);
         }
     }
@@ -165,14 +166,15 @@ public class BorrowRecordControllerTest {
         @Test
         @DisplayName("should return 200 OK with page of user's borrow records")
         void shouldReturnOkStatusWithPageOfUserBorrowRecords() {
-            Page<BorrowRecordResponseDto> page = new PageImpl<>(List.of(responseDto), pageable, 1);
+            BorrowRecordPageResponseDto page = new BorrowRecordPageResponseDto(
+                    List.of(responseDto), 1, 1);
             when(borrowRecordService.getByUser(anyLong(), any(Pageable.class))).thenReturn(page);
 
-            ResponseEntity<Page<BorrowRecordResponseDto>> response = borrowRecordController.getByUser(1L, pageable);
+            ResponseEntity<BorrowRecordPageResponseDto> response = borrowRecordController.getByUser(1L, pageable);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
-            assertThat(response.getBody().getContent()).hasSize(1);
+            assertThat(response.getBody().items()).hasSize(1);
             verify(borrowRecordService).getByUser(1L, pageable);
         }
 
@@ -236,16 +238,17 @@ public class BorrowRecordControllerTest {
         @Test
         @DisplayName("should return 200 OK when filtering by email")
         void shouldReturnOkStatusWhenFilteringByEmail() {
-            Page<BorrowRecordResponseDto> page = new PageImpl<>(List.of(responseDto), pageable, 1);
+            BorrowRecordPageResponseDto page = new BorrowRecordPageResponseDto(
+                    List.of(responseDto), 1, 1);
             when(borrowRecordService.filter(eq("user@example.com"), isNull(), isNull(), any(Pageable.class)))
                     .thenReturn(page);
 
-            ResponseEntity<Page<BorrowRecordResponseDto>> response =
+            ResponseEntity<BorrowRecordPageResponseDto> response =
                     borrowRecordController.filter("user@example.com", null, null, pageable);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
-            assertThat(response.getBody().getContent()).hasSize(1);
+            assertThat(response.getBody().items()).hasSize(1);
             verify(borrowRecordService).filter("user@example.com", null, null, pageable);
         }
 
@@ -254,31 +257,35 @@ public class BorrowRecordControllerTest {
         void shouldReturnOkStatusWhenFilteringByDateRange() {
             LocalDate startDate = LocalDate.now().minusDays(7);
             LocalDate endDate = LocalDate.now();
-            Page<BorrowRecordResponseDto> page = new PageImpl<>(List.of(responseDto), pageable, 1);
+            BorrowRecordPageResponseDto page = new BorrowRecordPageResponseDto(
+                    List.of(responseDto), 1, 1);
             when(borrowRecordService.filter(isNull(), eq(startDate), eq(endDate), any(Pageable.class)))
                     .thenReturn(page);
 
-            ResponseEntity<Page<BorrowRecordResponseDto>> response =
+            ResponseEntity<BorrowRecordPageResponseDto> response =
                     borrowRecordController.filter(null, startDate, endDate, pageable);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
-            assertThat(response.getBody().getContent()).hasSize(1);
+            assertThat(response.getBody().items()).hasSize(1);
             verify(borrowRecordService).filter(null, startDate, endDate, pageable);
         }
+
 
         @Test
         @DisplayName("should return 200 OK with empty page when no records match filter criteria")
         void shouldReturnOkStatusWithEmptyPageWhenNoRecordsMatchFilterCriteria() {
-            Page<BorrowRecordResponseDto> emptyPage = new PageImpl<>(Collections.emptyList(), pageable, 0);
-            when(borrowRecordService.filter(anyString(), any(), any(), any(Pageable.class))).thenReturn(emptyPage);
+            BorrowRecordPageResponseDto emptyPage = new BorrowRecordPageResponseDto(
+                    Collections.emptyList(), 0, 0);
+            when(borrowRecordService.filter(anyString(), any(), any(), any(Pageable.class)))
+                    .thenReturn(emptyPage);
 
-            ResponseEntity<Page<BorrowRecordResponseDto>> response =
+            ResponseEntity<BorrowRecordPageResponseDto> response =
                     borrowRecordController.filter("nonexistent@example.com", null, null, pageable);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
-            assertThat(response.getBody().getContent()).isEmpty();
+            assertThat(response.getBody().items()).isEmpty();
             verify(borrowRecordService).filter("nonexistent@example.com", null, null, pageable);
         }
     }

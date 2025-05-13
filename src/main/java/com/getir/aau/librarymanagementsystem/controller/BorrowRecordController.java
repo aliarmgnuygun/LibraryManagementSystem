@@ -2,6 +2,7 @@
 
     import com.getir.aau.librarymanagementsystem.exception.ExceptionResult;
     import com.getir.aau.librarymanagementsystem.model.dto.request.BorrowRecordRequestDto;
+    import com.getir.aau.librarymanagementsystem.model.dto.response.BorrowRecordPageResponseDto;
     import com.getir.aau.librarymanagementsystem.model.dto.response.BorrowRecordResponseDto;
     import com.getir.aau.librarymanagementsystem.service.BorrowRecordService;
     import io.swagger.v3.oas.annotations.Operation;
@@ -13,7 +14,6 @@
     import jakarta.validation.Valid;
     import lombok.RequiredArgsConstructor;
     import org.springdoc.core.annotations.ParameterObject;
-    import org.springframework.data.domain.Page;
     import org.springframework.data.domain.Pageable;
     import org.springframework.format.annotation.DateTimeFormat;
     import org.springframework.http.HttpStatus;
@@ -70,7 +70,7 @@
                                 content = @Content(schema = @Schema(implementation = BorrowRecordResponseDto.class)))
                 })
         @GetMapping
-        public ResponseEntity<Page<BorrowRecordResponseDto>> getAll(@ParameterObject Pageable pageable) {
+        public ResponseEntity<BorrowRecordPageResponseDto> getAll(@ParameterObject Pageable pageable) {
             return ResponseEntity.ok(borrowRecordService.getAll(pageable));
         }
 
@@ -89,7 +89,7 @@
                                 content = @Content(schema = @Schema(implementation = ExceptionResult.class)))
                 })
         @GetMapping("/user/{userId}")
-        public ResponseEntity<Page<BorrowRecordResponseDto>> getByUser(@PathVariable Long userId, @ParameterObject Pageable pageable) {
+        public ResponseEntity<BorrowRecordPageResponseDto> getByUser(@PathVariable Long userId, @ParameterObject Pageable pageable) {
             return ResponseEntity.ok(borrowRecordService.getByUser(userId, pageable));
         }
 
@@ -118,7 +118,7 @@
                                 content = @Content(schema = @Schema(implementation = BorrowRecordResponseDto.class)))
                 })
         @GetMapping("/filter")
-        public ResponseEntity<Page<BorrowRecordResponseDto>> filter(
+        public ResponseEntity<BorrowRecordPageResponseDto> filter(
                 @RequestParam(required = false) String email,
                 @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
                 @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
