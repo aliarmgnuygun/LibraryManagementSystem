@@ -39,7 +39,7 @@ public class AuthController {
         return new ResponseEntity<>(authService.register(request), HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Authenticate user and get tokens", responses = {
+    @Operation(summary = "Login user and get tokens", responses = {
             @ApiResponse(responseCode = "200", description = "Authentication successful",
                     content = @Content(schema = @Schema(implementation = AuthResponseDto.class))),
             @ApiResponse(responseCode = "401", description = "Invalid credentials")

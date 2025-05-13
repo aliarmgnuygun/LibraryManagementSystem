@@ -28,7 +28,12 @@ application:
       refresh-token:
         expiration: 604800000 # 7 days
 
-
 logging:
   level:
     org.springframework.security: DEBUG
+
+
+springdoc:
+  swagger-ui:
+    tags-sorter: alpha
+    operations-sorter: alpha
